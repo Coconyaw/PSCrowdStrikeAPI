@@ -45,6 +45,9 @@
 	)
 	
 	begin {
+		if ($PSBoundParameters.ContainsKey('Token')) {
+			$Token = Get-CSAccessToken
+		}
 		$baseUrl = "https://api.crowdstrike.com"
 		$url = $baseUrl + $Endpoint
 		$header = @{
