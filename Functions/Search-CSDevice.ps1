@@ -163,7 +163,7 @@ function Construct-FilterString($fparams) {
 	$count = 0
 	foreach ($item in $fparams.GetEnumerator()) {
 		if ($count -ne 0) {
-			$q += "&"
+			$q += "+"
 		}
 		$q += "$($item.Key): '$($item.Value)'"
 		$count++

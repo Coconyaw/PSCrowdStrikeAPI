@@ -29,7 +29,7 @@ Describe "Construct-FilterString" {
 	}
 	It "Two params" {
 		$q = [ordered]@{local_ip = "1.1.1.1"; external_ip = "2.2.2.2"}
-		$expect = "filter=local_ip: '$($q.local_ip)'&external_ip: '$($q.external_ip)'"
+		$expect = "filter=local_ip: '$($q.local_ip)'+external_ip: '$($q.external_ip)'"
 		Construct-FilterString $q | Should Be $expect
 	}
 	It "all params" {
@@ -41,7 +41,7 @@ Describe "Construct-FilterString" {
 						status = "Normal"
 						}
 
-		$expect = "filter=hostname: '$($q.hostname)'&local_ip: '$($q.local_ip)'&external_ip: '$($q.external_ip)'&os_version: '$($q.os_version)'&platform_name: '$($q.platform_name)'&status: '$($q.status)'"
+		$expect = "filter=hostname: '$($q.hostname)'+local_ip: '$($q.local_ip)'+external_ip: '$($q.external_ip)'+os_version: '$($q.os_version)'+platform_name: '$($q.platform_name)'+status: '$($q.status)'"
 		Construct-FilterString $q | Should Be $expect
 	}
 }
@@ -67,7 +67,7 @@ Describe "Construct-Query" {
 
 	It "Only filters" {
 		$q = @{offset = $null; limit = $null; filters = [ordered]@{hostname = "test"; local_ip = "1.1.1.1"}}
-		$expect = "?filter=hostname: '$($q.filters.hostname)'&local_ip: '$($q.filters.local_ip)'"
+		$expect = "?filter=hostname: '$($q.filters.hostname)'+local_ip: '$($q.filters.local_ip)'"
 		Construct-Query $q | Should Be $expect
 	}
 
@@ -79,7 +79,7 @@ Describe "Construct-Query" {
 
 	It "offset 100 and limit 1000 and filters" {
 		$q = @{offset = 100; limit = 1000; filters = [ordered]@{hostname = "test"; local_ip = "1.1.1.1"}}
-		$expect = "?offset=100&limit=1000&filter=hostname: '$($q.filters.hostname)'&local_ip: '$($q.filters.local_ip)'"
+		$expect = "?offset=100&limit=1000&filter=hostname: '$($q.filters.hostname)'+local_ip: '$($q.filters.local_ip)'"
 		Construct-Query $q | Should Be $expect
 	}
 }
