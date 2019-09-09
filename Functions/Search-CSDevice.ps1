@@ -1,6 +1,4 @@
-﻿. .\Invoke-CSRestMethod.ps1
-
-Function Search-CSDevice {
+﻿Function Search-CSDevice {
 	<#
 	.SYNOPSIS
 	 Search-CSDeviceAids: Wrpper of CSApi '/devices/queries/devices/v1'

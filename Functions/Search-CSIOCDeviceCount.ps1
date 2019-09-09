@@ -1,6 +1,4 @@
-﻿. .\Invoke-CSRestMethod.ps1
-
-function Search-CSIOCDeviceCount {
+﻿function Search-CSIOCDeviceCount {
 	<#
 	.SYNOPSIS
 	 Invoke-CSRestMethod: Wrraper of Invoke-RestMethod for CrowdStrike API
