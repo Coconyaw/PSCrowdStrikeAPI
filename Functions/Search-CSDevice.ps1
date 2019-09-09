@@ -1,4 +1,6 @@
-﻿Function Search-CSDevice {
+﻿. .\Invoke-CSRestMethod.ps1
+
+Function Search-CSDevice {
 	<#
 	.SYNOPSIS
 	 Search-CSDeviceAids: Wrpper of CSApi '/devices/queries/devices/v1'
@@ -12,11 +14,12 @@
 	.PARAMETER <OSVersion>
 	.PARAMETER <PlatForm>
 	.PARAMETER <Status>
+	.PARAMETER <Offset>
+	.PARAMETER <Limit>
 	.INPUTS
 	  <Inputs if any, otherwise state None>
 	.OUTPUTS
-	  Success Sample:
-	  @{access_token = "sample-token"; token_type = "barrer"; in_expire = 1799; expiration_time = "2019/09/03 12:00:00"}
+	  CSAPI Result
 	.NOTES
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
@@ -24,8 +27,7 @@
 	  Purpose/Change: Initial script development
 	  
 	.EXAMPLE
-	  Get-CSAccessToken
-	  Get-CSAccessToken -ClientId exampleId01 -ClientSecret s3cr3tkey
+	 Search-CSDevice -Token $token -PlatForm Windows -Offset 100 -Limit 1000
 	#>
 	Param (
 		[Parameter(Mandatory=$true)]
@@ -50,42 +52,51 @@
 
 		[ValidateSet("Normal", "containment_pending", "contained", "lift_containment_pending")]
 		[string]
-		$Status
+		$Status,
+
+		[ValidateRange(1, 5000)]
+		[int]
+		$Offset,
+
+		[ValidateRange(1, 5000)]
+		[int]
+		$Limit
 	)
 	
 	begin {
 		$base = "/devices/entities/devices/v1"
+		$qparams = [ordered]@{ offset = $null; limit = $null; filters = [ordered]@{}}
 	}
 	
 	process {
-		$qs = @() # query param name
-		$vs = @() # query param value
-		if ($PSBoundParameters.ContainsKey("HostName")) {
-			$qs += "hostname"
-			$vs += $HostName
-		}
-		if ($PSBoundParameters.ContainsKey("LocalIp")) {
-			$qs += "local_ip"
-			$vs += $LocalIp
-		}
-		if ($PSBoundParameters.ContainsKey("ExternalIp")) {
-			$qs += "external_ip"
-			$vs += $ExternalIp
-		}
-		if ($PSBoundParameters.ContainsKey("OSVersion")) {
-			$qs += "os_version"
-			$vs += $OSVersion
-		}
-		if ($PSBoundParameters.ContainsKey("PlatForm")) {
-			$qs += "platform_name"
-			$vs += $PlatForm
-		}
-		if ($PSBoundParameters.ContainsKey("Status")) {
-			$qs += "status"
-			$vs += $Status
+		if ($PSBoundParameters.ContainsKey("Offset")) {
+			$qparams.offset = $Offset
 		}
 
-		$endpoint = Construct-Query $qs $vs
+		if ($PSBoundParameters.ContainsKey("Limit")) {
+			$qparams.limit = $Limit
+		}
+
+		if ($PSBoundParameters.ContainsKey("HostName")) {
+			$qparams.filters.add("hostname", $HostName)
+		}
+		if ($PSBoundParameters.ContainsKey("LocalIp")) {
+			$qparams.filters.add("local_ip", $LocalIp)
+		}
+		if ($PSBoundParameters.ContainsKey("ExternalIp")) {
+			$qparams.filters.add("external_ip", $ExternalIp)
+		}
+		if ($PSBoundParameters.ContainsKey("OSVersion")) {
+			$qparams.filters.add("os_version", $OSVersion)
+		}
+		if ($PSBoundParameters.ContainsKey("PlatForm")) {
+			$qparams.filters.add("platform_name", $PlatForm)
+		}
+		if ($PSBoundParameters.ContainsKey("Status")) {
+			$qparams.filters.add("status", $Status)
+		}
+
+		$endpoint = Construct-Query $qparams
 		$aids = (Search-CSDeviceAids $Token $endpoint).resources
 
 		if ($aids.Count -eq 0) {
@@ -110,13 +121,55 @@ function Search-CSDeviceAids($Token, $Endpoint) {
 	Invoke-CSRestMethod -Token $Token -Endpoint $query -Method "Get"
 }
 
-function Construct-Query([string[]] $qs, [string[]] $vs) {
-	$query = "?filter="
-	for ($i = 0; $i -lt $qs.Count; $i++) {
-		if ($i -ne 0) {
-				$query += "&"
-		}
-		$query += "$($qs[$i]): '$($vs[$i])'"
+function Construct-Query($qparams) {
+	if ($qparams.offset -eq $null -and $qparams.limit -eq $null -and $qparams.filters.Count -eq 0) {
+		return ""
 	}
-	return $query
+
+	$qCount = 0
+	$q = "?"
+
+	if ($qparams.offset -ne $null) {
+		if ($qCount -ne 0) {
+			$q += "&"
+		}
+		$qCount++
+		$q += "offset=$($qparams.offset)"
+	}
+
+	if ($qparams.limit -ne $null) {
+		if ($qCount -ne 0) {
+			$q += "&"
+		}
+		$qCount++
+		$q += "limit=$($qparams.limit)"
+	}
+
+	if ($qparams.filters.Count -gt 0) {
+		if ($qCount -ne 0) {
+			$q += "&"
+		}
+		$qCount++
+		$q += Construct-FilterString $qparams.filters
+	}
+
+	return $q
 }
+
+function Construct-FilterString($fparams) {
+	if ($fparams.Count -eq 0) {
+		return ""
+	}
+
+	$q = "filter="
+	$count = 0
+	foreach ($item in $fparams.GetEnumerator()) {
+		if ($count -ne 0) {
+			$q += "&"
+		}
+		$q += "$($item.Key): '$($item.Value)'"
+		$count++
+	}
+	return $q
+}
+

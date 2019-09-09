@@ -4,112 +4,82 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 
 $token = @{access_token = "Access_token"; token_type= "bearer"; expires_in = 1799; expiration_time = "2019/09/03 12:00:00"}
 
-Describe "Search-CSDeviceAids" {
-	$base = "/devices/queries/devices/v1"
+Describe "Construct-FilterString" {
+	$TestCases = @(
+		[ordered]@{},
+		[ordered]@{hostname = "test"},
+		[ordered]@{local_ip = "1.1.1.1"; external_ip = "2.2.2.2"},
+		[ordered]@{hostname = "test04";
+				   local_ip = "3.3.3.3";
+				   external_ip = "4.4.4.4";
+				   os_version = "Windows 7";
+				   platform_name = "Windows";
+				   status = "Normal" }
+	)
 
-	It "Only HostName" {
-		$qs = @("hostname")
-		$vs = @("Test01")
-
-		$query = Construct-Query $qs $vs
-		$endpoint = $base + "?filter=hostname: '$($vs[0])'"
-
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $endpoint; }
-		Search-CSDeviceAids -Token $Token -Endpoint $endpoint
-		Assert-VerifiableMocks
-    }
-
-	It "Only LocalIP" {
-		$qs = @("local_ip")
-		$vs = @("1.1.1.1")
-
-		$query = Construct-Query $qs $vs
-		$endpoint = $base + "?filter=local_ip: '$($vs[0])'"
-
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $endpoint; }
-		Search-CSDeviceAids -Token $Token -Endpoint $endpoint
-		Assert-VerifiableMocks
-    }
-
-	It "Use all params" {
-		$qs = @("hostname", "local_ip", "external_ip", "os_version", "platform_name", "status")
-		$vs = @("Test03", "3.3.3.3", "33.33.33.33", "Windows 7", "Windows", "Normal")
-
-		$query = Construct-Query $qs $vs
-		$endpoint = $base + "?filter=hostname: '$($vs[0])'"
-		$endpoint += "&local_ip: '$($vs[1])'"
-		$endpoint += "&external_ip: '$($vs[2])'"
-		$endpoint += "&os_version: '$($vs[3])'"
-		$endpoint += "&platform_name: '$($vs[4])'"
-		$endpoint += "&status: '$($vs[5])'"
-
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $endpoint; }
-		Search-CSDeviceAids -Token $Token -Endpoint $endpoint
-		Assert-VerifiableMocks
-    }
 	It "No params" {
-		$endpoint = $base
+		$q = [ordered]@{}
+		$expect = ""
+		Construct-FilterString $q | Should Be $expect
+	}
+	It "One params" {
+		$q = [ordered]@{hostname = "test"}
+		$expect = "filter=hostname: '$($q.hostname)'"
+		Construct-FilterString $q | Should Be $expect
+	}
+	It "Two params" {
+		$q = [ordered]@{local_ip = "1.1.1.1"; external_ip = "2.2.2.2"}
+		$expect = "filter=local_ip: '$($q.local_ip)'&external_ip: '$($q.external_ip)'"
+		Construct-FilterString $q | Should Be $expect
+	}
+	It "all params" {
+		$q = [ordered]@{hostname = "test04";
+						local_ip = "3.3.3.3";
+						external_ip = "4.4.4.4";
+						os_version = "Windows 7";
+						platform_name = "Windows";
+						status = "Normal"
+						}
 
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $endpoint; }
-		Search-CSDeviceAids -Token $Token -Endpoint $endpoint
-		Assert-VerifiableMocks
-    }
+		$expect = "filter=hostname: '$($q.hostname)'&local_ip: '$($q.local_ip)'&external_ip: '$($q.external_ip)'&os_version: '$($q.os_version)'&platform_name: '$($q.platform_name)'&status: '$($q.status)'"
+		Construct-FilterString $q | Should Be $expect
+	}
 }
 
-Describe "Search-CSDevice" {
-	$aidRet = @{meta = @{}; resources = "1234567890"; errors = @{}}
-	$base = "/devices/entities/devices/v1"
-	It "Only HostName" {
-		$qs = @("hostname")
-		$vs = @("Test01")
-
-		$aidQuery = "?filter=hostname: '$($vs[0])'"
-		$detailQuery = $base + "?ids=$($aidRet.resources)"
-
-		Mock Search-CSDeviceAids { return $aidRet } -Verifiable -ParameterFilter { $Token -eq $Token; $Endpoint -eq $aidQuery; }
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $detailQuery; }
-		Search-CSDevice -Token $Token -HostName $vs[0]
-		Assert-VerifiableMocks
-    }
-
-	It "Only LocalIP" {
-		$qs = @("local_ip")
-		$vs = @("1.1.1.1")
-
-		$aidQuery = "?filter=local_ip: '$($vs[0])'"
-		$detailQuery = $base + "?ids=$($aidRet.resources)"
-
-		Mock Search-CSDeviceAids { return $aidRet } -Verifiable -ParameterFilter { $Token -eq $Token; $Endpoint -eq $aidQuery; }
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $detailQuery; }
-		Search-CSDevice -Token $Token -LocalIp $vs[0]
-		Assert-VerifiableMocks
-    }
-
-	It "Use all params" {
-		$qs = @("hostname", "local_ip", "external_ip", "os_version", "platform_name", "status")
-		$vs = @("Test03", "3.3.3.3", "33.33.33.33", "Windows 7", "Windows", "Normal")
-
-		$aidQuery = $base + "?filter=hostname: '$($vs[0])'"
-		$aidQuery += "&local_ip: '$($vs[1])'"
-		$aidQuery += "&external_ip: '$($vs[2])'"
-		$aidQuery += "&os_version: '$($vs[3])'"
-		$aidQuery += "&platform_name: '$($vs[4])'"
-		$aidQuery += "&status: '$($vs[5])'"
-
-		$detailQuery = $base + "?ids=$($aidRet.resources)"
-
-		Mock Search-CSDeviceAids { return $aidRet } -Verifiable -ParameterFilter { $Token -eq $Token; $Endpoint -eq $aidQuery; }
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $detailQuery; }
-		Search-CSDevice -Token $Token -HostName $vs[0] -LocalIp $vs[1] -ExternalIp $vs[2] -OSVersion $vs[3] -PlatForm $vs[4] -Status $vs[5]
-		Assert-VerifiableMocks
-    }
+Describe "Construct-Query" {
 	It "No params" {
-		$aidQuery = ""
-		$detailQuery = $base + "?ids=$($aidRet.resources)"
+		$q = @{offset = $null; limit = $null; filters = @{}}
+		$expect = ""
+		Construct-Query $q | Should Be $expect
+	}
 
-		Mock Search-CSDeviceAids { return $aidRet } -Verifiable -ParameterFilter { $Token -eq $Token; $Endpoint -eq $endpoint; }
-		Mock Invoke-CSRestMethod { return @{} } -Verifiable -ParameterFilter { $Token -eq $Token; $Method -eq "Get"; $Endpoint -eq $detailQuery; }
-		Search-CSDevice -Token $Token
-		Assert-VerifiableMocks
-    }
+	It "Only offset 100" {
+		$q = @{offset = 100; limit = $null; filters = @{}}
+		$expect = "?offset=100"
+		Construct-Query $q | Should Be $expect
+	}
+
+	It "Only limit 1000" {
+		$q = @{offset = $null; limit = 1000; filters = @{}}
+		$expect = "?limit=1000"
+		Construct-Query $q | Should Be $expect
+	}
+
+	It "Only filters" {
+		$q = @{offset = $null; limit = $null; filters = [ordered]@{hostname = "test"; local_ip = "1.1.1.1"}}
+		$expect = "?filter=hostname: '$($q.filters.hostname)'&local_ip: '$($q.filters.local_ip)'"
+		Construct-Query $q | Should Be $expect
+	}
+
+	It "offset 100 and limit 1000" {
+		$q = @{offset = 100; limit = 1000; filters = @{}}
+		$expect = "?offset=100&limit=1000"
+		Construct-Query $q | Should Be $expect
+	}
+
+	It "offset 100 and limit 1000 and filters" {
+		$q = @{offset = 100; limit = 1000; filters = [ordered]@{hostname = "test"; local_ip = "1.1.1.1"}}
+		$expect = "?offset=100&limit=1000&filter=hostname: '$($q.filters.hostname)'&local_ip: '$($q.filters.local_ip)'"
+		Construct-Query $q | Should Be $expect
+	}
 }
