@@ -69,7 +69,7 @@
 	
 	process {
 		if ($PSBoundParameters.ContainsKey("Offset")) {
-			$params.Add('offest', $Offset)
+			$params.Add('offset', $Offset)
 		}
 
 		if ($PSBoundParameters.ContainsKey("Limit")) {
