@@ -44,7 +44,7 @@
 	
 	begin {
 		$base = "/indicators/aggregates/devices-count/v1"
-		$endpoint = $base + "?type=$Type&value=$Value"
+		$body = @{type = $Type; value = $Value}
 		$header = @{
 			Accept = "application/json"
 			Authorization = "$($Token.token_type) $($Token.access_token)"
@@ -53,7 +53,7 @@
 	
 	process {
 		$method = "Get"
-		Invoke-CSRestMethod -Token $Token -Method $method -Endpoint $endpoint
+		Invoke-CSRestMethod -Token $Token -Method $method -Endpoint $base -Body $body
 	}
 	
 	end {

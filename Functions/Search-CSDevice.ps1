@@ -63,39 +63,44 @@
 	
 	begin {
 		$base = "/devices/entities/devices/v1"
-		$qparams = [ordered]@{ offset = $null; limit = $null; filters = [ordered]@{}}
+		$params = [ordered]@{}
+		$filters = @{}
 	}
 	
 	process {
 		if ($PSBoundParameters.ContainsKey("Offset")) {
-			$qparams.offset = $Offset
+			$params.Add('offest', $Offset)
 		}
 
 		if ($PSBoundParameters.ContainsKey("Limit")) {
-			$qparams.limit = $Limit
+			$params.Add('limit', $Limit)
 		}
 
 		if ($PSBoundParameters.ContainsKey("HostName")) {
-			$qparams.filters.add("hostname", $HostName)
+			$filters.add("hostname", $HostName)
 		}
 		if ($PSBoundParameters.ContainsKey("LocalIp")) {
-			$qparams.filters.add("local_ip", $LocalIp)
+			$filters.add("local_ip", $LocalIp)
 		}
 		if ($PSBoundParameters.ContainsKey("ExternalIp")) {
-			$qparams.filters.add("external_ip", $ExternalIp)
+			$filters.add("external_ip", $ExternalIp)
 		}
 		if ($PSBoundParameters.ContainsKey("OSVersion")) {
-			$qparams.filters.add("os_version", $OSVersion)
+			$filters.add("os_version", $OSVersion)
 		}
 		if ($PSBoundParameters.ContainsKey("PlatForm")) {
-			$qparams.filters.add("platform_name", $PlatForm)
+			$filters.add("platform_name", $PlatForm)
 		}
 		if ($PSBoundParameters.ContainsKey("Status")) {
-			$qparams.filters.add("status", $Status)
+			$filters.add("status", $Status)
 		}
 
-		$endpoint = Construct-Query $qparams
-		$aids = (Search-CSDeviceAids $Token $endpoint).resources
+		if ($filters.Count -gt 0) {
+			$fs = Construct-FilterString $filters
+			$params.Add('filter', $fs)
+		}
+
+		$aids = (Search-CSDeviceAids $Token $Params).resources
 
 		if ($aids.Count -eq 0) {
 			Write-Error "No aid Found: $endpoint"
@@ -113,45 +118,9 @@
 
 }
 
-function Search-CSDeviceAids($Token, $Endpoint) {
-	$base = "/devices/queries/devices/v1"
-	$query = $base + $Endpoint
-	Invoke-CSRestMethod -Token $Token -Endpoint $query -Method "Get"
-}
-
-function Construct-Query($qparams) {
-	if ($qparams.offset -eq $null -and $qparams.limit -eq $null -and $qparams.filters.Count -eq 0) {
-		return ""
-	}
-
-	$qCount = 0
-	$q = "?"
-
-	if ($qparams.offset -ne $null) {
-		if ($qCount -ne 0) {
-			$q += "&"
-		}
-		$qCount++
-		$q += "offset=$($qparams.offset)"
-	}
-
-	if ($qparams.limit -ne $null) {
-		if ($qCount -ne 0) {
-			$q += "&"
-		}
-		$qCount++
-		$q += "limit=$($qparams.limit)"
-	}
-
-	if ($qparams.filters.Count -gt 0) {
-		if ($qCount -ne 0) {
-			$q += "&"
-		}
-		$qCount++
-		$q += Construct-FilterString $qparams.filters
-	}
-
-	return $q
+function Search-CSDeviceAids($Token, $Params) {
+	$endpoint = "/devices/queries/devices/v1"
+	Invoke-CSRestMethod -Token $Token -Endpoint $endpoint -Method "Get" -Body $Params
 }
 
 function Construct-FilterString($fparams) {
@@ -159,13 +128,12 @@ function Construct-FilterString($fparams) {
 		return ""
 	}
 
-	$q = "filter="
 	$count = 0
 	foreach ($item in $fparams.GetEnumerator()) {
 		if ($count -ne 0) {
 			$q += "+"
 		}
-		$q += "$($item.Key): '$($item.Value)'"
+		$q += "$($item.Key):'$($item.Value)'"
 		$count++
 	}
 	return $q

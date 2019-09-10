@@ -58,8 +58,8 @@
 	
 	process {
 		if ($PSBoundParameters.ContainsKey('Body')) {
-			$b = $Body | ConvertTo-Json
-			Invoke-RestMethod -Uri $url -Method $Method -Headers $header -Body $b
+			# $b = $Body | ConvertTo-Json
+			Invoke-RestMethod -Uri $url -Method $Method -Headers $header -Body $Body
 		} else {
 			Invoke-RestMethod -Uri $url -Method $Method -Headers $header
 		}

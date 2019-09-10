@@ -1,6 +1,7 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
+. .\Invoke-CSRestMethod.ps1
 
 $d = (Get-Date).AddMinutes(30).ToString()
 $token = @{access_token = "Access_token"; token_type= "bearer"; expires_in = 1799; expiration_time = $d}
@@ -14,9 +15,9 @@ Describe "Search-CSIOCDeviceCount" {
 	)
     It "Given -Type '<Type>' -Value '<Value>', it expect verifiable mock call." -TestCase $TestCases {
 		Param ($Token, $Type, $Value)
-		$e = $base + "?type=$Type&value=$Value"
+		$body = @{type = $Type; value = $Value}
 		Mock Invoke-CSRestMethod { return @{meta = @{}; resources = @{}; errors = @{}} } -Verifiable `
-		-ParameterFilter {$Token -eq $Token; $Endpoint -eq $e; $Method -eq "Get"}
+		-ParameterFilter {$Token -eq $Token; $Endpoint -eq $base; $Method -eq "Get"; $Body -eq $body}
 		Search-CSIOCDeviceCount -Token $Token -Type $Type -Value $Value
 		Assert-VerifiableMocks
     }
