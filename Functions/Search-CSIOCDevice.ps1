@@ -42,7 +42,7 @@
 		# [string]
 		# $Offset,
 
-		[ValidateRange(1, 5000)]
+		[ValidateRange(0, 100)]
 		[int]
 		$Limit
 	)

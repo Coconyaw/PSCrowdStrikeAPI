@@ -42,10 +42,10 @@ Describe "Search-CSIOCDevice" {
 		@{ Type = "domain"; Value = "www.google.com"; Limit = 10; Expect = "Success" },
 		@{ Type = "sha256"; Value = "testsha256value"; Limit = 10; Expect = "Success" },
 		@{ Type = "md5"; Value = "testmd5value"; Limit = 10; Expect = "Success" },
-		@{ Type = "domain"; Value = "test.example.com"; Limit = 1; Expect = "Success" },
-		@{ Type = "domain"; Value = "test.example.com"; Limit = 5000; Expect = "Success" },
-		@{ Type = "domain"; Value = "test.example.com"; Limit = 0; Expect = "Error" },
-		@{ Type = "domain"; Value = "test.example.com"; Limit = 5001; Expect = "Error" }
+		@{ Type = "domain"; Value = "test.example.com"; Limit = 0; Expect = "Success" },
+		@{ Type = "domain"; Value = "test.example.com"; Limit = 100; Expect = "Success" },
+		@{ Type = "domain"; Value = "test.example.com"; Limit = -1; Expect = "Error" },
+		@{ Type = "domain"; Value = "test.example.com"; Limit = 101; Expect = "Error" }
 	)
 
     It "Given value -Type '<Type>' -Value '<Value>' -Limit '<Limit>', it -Expect '<Expect>'" -TestCases $TestCases {
