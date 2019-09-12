@@ -17,4 +17,4 @@ Foreach ($s in $src) {
 	}
 }
 
-Export-ModuleMember -Function Get-CSAccessToken, Search-CSDevice, Search-CSIOCDeviceCount
+Export-ModuleMember -Function Get-CSAccessToken, Search-CSDevice, Search-CSDeviceDetail, Search-CSIOCDeviceCount, Search-CSIOCDevice

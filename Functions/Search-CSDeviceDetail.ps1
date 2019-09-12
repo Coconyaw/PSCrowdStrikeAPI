@@ -1,7 +1,7 @@
-﻿Function Search-CSDevice {
+﻿Function Search-CSDeviceDetail {
 	<#
 	.SYNOPSIS
-	 Search-CSDeviceAids: Wrpper of CSApi '/devices/queries/devices/v1'
+	 Search-CSDeviceDetail: Get Device detail information from /devices/entities/devices/v1
 	.DESCRIPTION
 	 与えられたフィルタパラメータを使用してDeviceAPIに接続し、検索結果を返す
 	.PARAMETER <Token>
@@ -62,7 +62,6 @@
 	)
 	
 	begin {
-		$base = "/devices/entities/devices/v1"
 		$params = [ordered]@{}
 		$filters = @{}
 	}
@@ -107,15 +106,28 @@
 		}
 
 		foreach ($aid in $aids) {
-			$query = $base + "?ids=$aid"
-			Invoke-CSRestMethod -Token $Token -Method "Get" -Endpoint $query
+			Search-CSDevice $Token $Aid
 		}
 	}
 	
 	end {
 		
 	}
+}
 
+function Search-CSDevice {
+	Param (
+		[Parameter(Mandatory=$true)]
+		$Token,
+
+		[Parameter(Mandatory=$true)]
+		[string]
+		$Aid
+	)
+
+	$base = "/devices/entities/devices/v1"
+	$body = @{ids = $Aid}
+	Invoke-CSRestMethod -Token $Token -Method "Get" -Endpoint $base -Body $body
 }
 
 function Search-CSDeviceAids($Token, $Params) {
