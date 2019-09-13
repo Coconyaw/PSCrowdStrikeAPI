@@ -14,6 +14,7 @@
 	.PARAMETER <Status>
 	.PARAMETER <Offset>
 	.PARAMETER <Limit>
+	.PARAMETER <AidOnly>
 	.INPUTS
 	  <Inputs if any, otherwise state None>
 	.OUTPUTS
@@ -58,7 +59,10 @@
 
 		[ValidateRange(1, 5000)]
 		[int]
-		$Limit
+		$Limit,
+
+		[Switch]
+		$AidOnly
 	)
 	
 	begin {
@@ -99,6 +103,14 @@
 			$params.Add('filter', $fs)
 		}
 
+		# AidOnlyフラグがOnなら、Aidだけ取得して返す
+		if ($AidOnly) {
+			Write-Verbose "AidOnly: Return only aids from '/devices/queries/devices/v1'"
+			Search-CSDeviceAids $Token $Params
+			return
+		}
+
+		Write-Verbose "Search detail of devices from '/devices/entities/devices/v1'"
 		$aids = (Search-CSDeviceAids $Token $Params).resources
 
 		if ($aids.Count -eq 0) {
