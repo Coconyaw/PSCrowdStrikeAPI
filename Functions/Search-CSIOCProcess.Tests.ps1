@@ -94,7 +94,7 @@ Describe "Search-CSIOCProcess" {
 		}
 	}
 
-	Context ".\Search-CSIOCProcessDetail" {
+	Context "Search-CSIOCProcess" {
 		It "Given value -Type '<Type>' -Value '<Value>' -DeviceId '<DeviceId>' -Limit '<Limit>', it -Expect '<Expect>'" `
 		-TestCases $TestCases {
 			Param ( $Type, $Value, $DeviceId, $Limit, $Expect )
@@ -103,17 +103,17 @@ Describe "Search-CSIOCProcess" {
 
 
 			if ($Limit -eq $null -and $Expect -eq "Success") {
-				Search-CSIOCProcessDetail -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId |
+				Search-CSIOCProcess -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId |
 				Should be $DetailSampleRes
 				Assert-VerifiableMocks
 				Assert-MockCalled -CommandName Invoke-CSRestMethod -Times 2 -Exactly -Scope It
 			} elseif ($Limit -ne $null -and $Expect -eq "Success") {
-				Search-CSIOCProcessDetail -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit |
+				Search-CSIOCProcess -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit |
 				Should be $DetailSampleRes
 				Assert-VerifiableMocks
 				Assert-MockCalled -CommandName Invoke-CSRestMethod -Times 2 -Exactly -Scope It
 			} elseif ($Limit -ne $null -and $Expect -eq "Error") {
-				{ Search-CSIOCProcessDetail -Token $Token -Type $Type -Value $Value -Limit $Limit } | Should throw
+				{ Search-CSIOCProcess -Token $Token -Type $Type -Value $Value -Limit $Limit } | Should throw
 			}
 		}
 	}

@@ -28,6 +28,7 @@
 	.EXAMPLE
 	 Search-CSDevice -Token $token -PlatForm Windows -Offset 100 -Limit 1000
 	#>
+	[CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$true)]
 		$Token,
@@ -128,6 +129,7 @@
 }
 
 function Search-CSDeviceDetail  {
+	[CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$true)]
 		$Token,

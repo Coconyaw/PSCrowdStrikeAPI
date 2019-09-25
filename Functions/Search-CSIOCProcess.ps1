@@ -1,7 +1,7 @@
-﻿function Search-CSIOCProcessDetail {
+﻿function Search-CSIOCProcess {
 	<#
 	.SYNOPSIS
-	 Search-CSIOCProcess: Find the process ID of an indicator that ran on a device recently. Provide the type and value of an IOC and a device ID.
+	 Search-CSIOCProcess: Find the process which related to IoC.
 	.DESCRIPTION
 	 IoCとDeviceIDに合致するプロセスIDを検索し、プロセスIDから、プロセスの詳細を取得する
 	.PARAMETER <Token>
@@ -26,6 +26,7 @@
 	.EXAMPLE
 	  Search-CSIOCProcess -Token $Token -Type domain -Value www.example.com -DeviceId "123abc" -Limit 10
 	#>
+	[CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$true)]
 		$Token,
