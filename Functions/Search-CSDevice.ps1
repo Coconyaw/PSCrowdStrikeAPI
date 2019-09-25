@@ -1,7 +1,7 @@
-﻿Function Search-CSDeviceDetail {
+﻿Function Search-CSDevice {
 	<#
 	.SYNOPSIS
-	 Search-CSDeviceDetail: Get Device detail information from /devices/entities/devices/v1
+	 Search-CSDevice: Get Device information from CrowdStrike
 	.DESCRIPTION
 	 与えられたフィルタパラメータを使用してDeviceAPIに接続し、検索結果を返す
 	.PARAMETER <Token>
@@ -118,7 +118,7 @@
 		}
 
 		foreach ($aid in $aids) {
-			Search-CSDevice $Token $Aid
+			Search-CSDeviceDetail $Token $Aid
 		}
 	}
 	
@@ -127,7 +127,7 @@
 	}
 }
 
-function Search-CSDevice {
+function Search-CSDeviceDetail  {
 	Param (
 		[Parameter(Mandatory=$true)]
 		$Token,

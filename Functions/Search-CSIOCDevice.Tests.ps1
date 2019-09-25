@@ -2,7 +2,7 @@
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
 . .\Invoke-CSRestMethod.ps1
-. .\Search-CSDeviceDetail.ps1
+. .\Search-CSDevice.ps1
 
 $RetObj = '{
     "meta":  {
@@ -51,19 +51,27 @@ Describe "Search-CSIOCDevice" {
     It "Given value -Type '<Type>' -Value '<Value>' -Limit '<Limit>', it -Expect '<Expect>'" -TestCases $TestCases {
 		Param ( $Type, $Value, $Limit, $Expect )
 
-		Mock Invoke-CSRestMethod { return $MockReturnObj } -Verifiable
-		Mock Search-CSDevice { return "Success" }
+		Mock Invoke-CSRestMethod { return $MockReturnObj } -Verifiable -Scope It
+		Mock Search-CSDeviceDetail { return "Success" } -Scope It
 
 		if ($Limit -eq $null -and $Expect -eq "Success") {
 			Search-CSIOCDevice -Token $Token -Type $Type -Value $Value | Should be $Expect
 			Assert-VerifiableMocks
-			Assert-MockCalled -CommandName Search-CSDevice -Times 10 -Exactly -Scope It
+			Assert-MockCalled -CommandName Search-CSDeviceDetail -Times 10 -Exactly -Scope It
 		} elseif ($Limit -ne $null -and $Expect -eq "Success") {
 			Search-CSIOCDevice -Token $Token -Type $Type -Value $Value -Limit $Limit | Should be $Expect
 			Assert-VerifiableMocks
-			Assert-MockCalled -CommandName Search-CSDevice -Times 10 -Exactly -Scope It
+			Assert-MockCalled -CommandName Search-CSDeviceDetail -Times 10 -Exactly -Scope It
 		} elseif ($Limit -ne $null -and $Expect -eq "Error") {
 			{ Search-CSIOCDevice -Token $Token -Type $Type -Value $Value -Limit $Limit } | Should throw
 		}
     }
+
+    It "Aidonly" {
+		Mock Search-CSIOCDeviceAid { return $MockReturnObj } -Verifiable -Scope It
+		Mock Search-CSDeviceDetail { return "Success" } -Scope It
+
+		Search-CSIOCDevice -Token $Token -Type domain -Value "test.example.com" -AidOnly
+		Assert-MockCalled -CommandName Search-CSDeviceDetail -Times 0 -Exactly -Scope It
+	}
 }

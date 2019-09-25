@@ -46,7 +46,7 @@ Describe "Construct-FilterString" {
 	}
 }
 
-Describe "Search-CSDeviceDetail" {
+Describe "Search-CSDevice" {
 	
 	$RetAids = '{
 		"meta": {
@@ -71,18 +71,18 @@ Describe "Search-CSDeviceDetail" {
 
 	It "Search-CSDevice will be called Aids count if AidOnly is OFF. (In this test, Aids count is 5.)" {
 		Mock Search-CSDeviceAids { return $RetAids }
-		Mock Search-CSDevice { return "Success" }
-		Search-CSDeviceDetail -Token $token -Hostname "Test" | Should be "Success"
+		Mock Search-CSDeviceDetail { return "Success" }
+		Search-CSDevice -Token $token -Hostname "Test" | Should be "Success"
 		Assert-MockCalled -CommandName Search-CSDeviceAids -Time 1 -Exactly -Scope It
-		Assert-MockCalled -CommandName Search-CSDevice -Time 5 -Exactly -Scope It
+		Assert-MockCalled -CommandName Search-CSDeviceDetail -Time 5 -Exactly -Scope It
 	}
 
 	It "Not search-detail if AidOnly is ON." {
 		Mock Search-CSDeviceAids { return $RetAids }
-		Mock Search-CSDevice { return "Error. Search-CSDevice should not be called if AidOnly is ON." }
-		Search-CSDeviceDetail -Token $token -Hostname "Test" -AidOnly | Should be $RetAids
+		Mock Search-CSDeviceDetail { return "Error. Search-CSDeviceDetail should not be called if AidOnly is ON." }
+		Search-CSDevice -Token $token -Hostname "Test" -AidOnly | Should be $RetAids
 		Assert-MockCalled -CommandName Search-CSDeviceAids -Time 1 -Exactly -Scope It
-		Assert-MockCalled -CommandName Search-CSDevice -Time 0 -Exactly -Scope It
+		Assert-MockCalled -CommandName Search-CSDeviceDetail -Time 0 -Exactly -Scope It
 	}
 }
 
