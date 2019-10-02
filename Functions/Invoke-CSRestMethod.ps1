@@ -59,6 +59,7 @@
 	process {
 		if ($PSBoundParameters.ContainsKey('Body')) {
 			# $b = $Body | ConvertTo-Json
+			$header.Add("Content-Type", "application/json")
 			Invoke-RestMethod -Uri $url -Method $Method -Headers $header -Body $Body
 		} else {
 			Invoke-RestMethod -Uri $url -Method $Method -Headers $header
