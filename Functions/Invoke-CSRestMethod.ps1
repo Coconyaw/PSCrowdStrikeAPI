@@ -3,9 +3,7 @@
 	.SYNOPSIS
 	 Invoke-CSRestMethod: Wrraper of Invoke-RestMethod for CrowdStrike API
 	.DESCRIPTION
-	 与えられたToken,EndpointUrl,Method,BodyからRequestを作成し、API呼び出しを行い結果を返す
-	.PARAMETER <Token>
-	    Token: Access token of CrowdStike oauth2. Get from Get-CSAccessToken cmdlet.
+	 与えられたEndpointUrl,Method,BodyからRequestを作成し、API呼び出しを行い結果を返す
 	.PARAMETER <Endpoint>
 		Endpoint: request api endpoint from crowdstrike
 	.PARAMETER <Method>
@@ -13,24 +11,18 @@
 	.PARAMETER <Body>
 		Body: Body of REST API
 	.INPUTS
-	  <Inputs if any, otherwise state None>
 	.OUTPUTS
-	  Success Sample:
-	  @{access_token = "sample-token"; token_type = "barrer"; in_expire = 1799; expiration_time = "2019/09/03 12:00:00"}
 	.NOTES
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/03
-	  Purpose/Change: Initial script development
-	  
+	  Purpose/Change: Delete argument of Token.
 	.EXAMPLE
-	  Invoke-CSRestMethod -Token $token -Endpoint "device/entities/queries/v1?filter=limit: 10" -Method Get
+	  Invoke-CSRestMethod -Endpoint "device/entities/queries/v1?filter=limit: 10" -Method Get
+	  Invoke-CSRestMethod -Endpoint "device/entities/queries/v1?filter=limit: 10" -Method Post -Body $body
 	#>
 	[CmdletBinding()]
 	param (
-		[Parameter(Mandatory=$true)]
-		$Token,
-
 		[Parameter(Mandatory=$true)]
 		[string]
 		$Endpoint,
@@ -45,11 +37,13 @@
 	)
 	
 	begin {
-		if ($PSBoundParameters.ContainsKey('Token')) {
-			$Token = Get-CSAccessToken
-		}
+		$Token = Get-CSAccessToken
+		Write-Verbose "Got Token. Expired time: $($Token.expiration_time)"
+
 		$baseUrl = "https://api.crowdstrike.com"
 		$url = $baseUrl + $Endpoint
+		Write-Verbose "Method:$Method, URL:$url"
+
 		$header = @{
 			Accept = "application/json"
 			Authorization = "$($Token.token_type) $($Token.access_token)"

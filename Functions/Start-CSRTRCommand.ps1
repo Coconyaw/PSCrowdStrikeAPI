@@ -1,23 +1,19 @@
 ﻿function Start-CSRTRCommand {
 	<#
 	.SYNOPSIS
-	Execute a command on a single host.
-	.DESCRIPTION
+	 Execute a command on a single host.
+	.PARAMETER <BaseCommand>
+	.PARAMETER <CommandString>
+	.PARAMETER <SessionId>
 	.EXAMPLE
-	 Start-CSRTRCommand -Token Get-CSAccessToken -Aid 123abc
+	 Start-CSRTRCommand -BaseCommand cat -CommandString "cat C:\sample.txt" -SessionId abc123
 	.INPUTS
-	None
-	.PARAMETER Aid
-	The Aid you want to connect
 	.OUTPUTS
 	.NOTES
 	#>
 
 	[CmdletBinding()]
 	Param (
-		[Parameter(Mandatory=$true)]
-		$Token,
-
 		[Parameter(Mandatory=$true)]
 		[ValidateSet("cat", "cd", "clear", "cp", "encrypt", "env", "eventlog", "filehash", "get", "getsid", "help", "history", "ipconfig", "kill", "ls", "map", "memdump", "mkdir", "mount", "mv", "netstat", "ps", "reg, query", "reg, set", "reg, delete", "reg, load", "reg, unload", "restart", "rm", "runscript", "shutdown", "unmap", "xmemdump", "zip")]
 		[String]
@@ -38,7 +34,7 @@
 	}
 
 	Process {
-		Invoke-CSRestMethod -Token $Token -Endpoint $base -Method "Post" -Body $body
+		Invoke-CSRestMethod -Endpoint $base -Method "Post" -Body $body
 	}
 
 	End {

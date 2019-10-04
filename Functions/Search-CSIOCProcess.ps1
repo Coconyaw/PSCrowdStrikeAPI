@@ -4,8 +4,6 @@
 	 Search-CSIOCProcess: Find the process which related to IoC.
 	.DESCRIPTION
 	 IoCとDeviceIDに合致するプロセスIDを検索し、プロセスIDから、プロセスの詳細を取得する
-	.PARAMETER <Token>
-	    Token: Access token of CrowdStike oauth2. Get from Get-CSAccessToken cmdlet.
 	.PARAMETER <Type>
 		The type of indicator from the list of supported indicator types.
 		Supported type: domain, md5, sha256
@@ -22,15 +20,12 @@
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/06
-	  Purpose/Change: Initial script development
+	  Purpose/Change: Delete argument of Token
 	.EXAMPLE
-	  Search-CSIOCProcess -Token $Token -Type domain -Value www.example.com -DeviceId "123abc" -Limit 10
+	  Search-CSIOCProcess -Type domain -Value www.example.com -DeviceId "123abc" -Limit 10
 	#>
 	[CmdletBinding()]
 	Param (
-		[Parameter(Mandatory=$true)]
-		$Token,
-
 		[Parameter(Mandatory=$true)]
 		[ValidateSet("domain", "md5", "sha256")]
 		[string]
@@ -55,14 +50,14 @@
 
 	Process {
 		if ($PSBoundParameters.ContainsKey('Limit')) {
-			$pids = (Search-CSIOCProcessId -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit).resources
+			$pids = (Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit).resources
 		} else {
-			$pids = (Search-CSIOCProcessId -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId).resources
+			$pids = (Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId).resources
 		}
 
 		foreach ($id in $pids) {
 			$body = @{ids = $id}
-			Invoke-CSRestMethod -Token $Token -Method "Get" -Endpoint $base -Body $body
+			Invoke-CSRestMethod -Method "Get" -Endpoint $base -Body $body
 		}
 	}
 }
@@ -73,8 +68,6 @@ function Search-CSIOCProcessId {
 	 Search-CSIOCProcess: Find the process ID of an indicator that ran on a device recently. Provide the type and value of an IOC and a device ID.
 	.DESCRIPTION
 	 IoCとDeviceIDに合致するプロセスIDを検索する
-	.PARAMETER <Token>
-	    Token: Access token of CrowdStike oauth2. Get from Get-CSAccessToken cmdlet.
 	.PARAMETER <Type>
 		The type of indicator from the list of supported indicator types.
 		Supported type: domain, md5, sha256
@@ -91,15 +84,12 @@ function Search-CSIOCProcessId {
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/06
-	  Purpose/Change: Initial script development
+	  Purpose/Change: Delete argument of Token
 	.EXAMPLE
-	  Search-CSIOCProcess -Token $Token -Type domain -Value www.example.com -DeviceId "123abc" -Limit 10
+	  Search-CSIOCProcessId -Type domain -Value www.example.com -DeviceId "123abc" -Limit 10
 	#>
 
 	Param (
-		[Parameter(Mandatory=$true)]
-		$Token,
-
 		[Parameter(Mandatory=$true)]
 		[ValidateSet("domain", "md5", "sha256")]
 		[string]
@@ -127,6 +117,6 @@ function Search-CSIOCProcessId {
 	}
 
 	Process {
-		Invoke-CSRestMethod -Token $Token -Method "Get" -Endpoint $base -Body $body
+		Invoke-CSRestMethod -Method "Get" -Endpoint $base -Body $body
 	}
 }

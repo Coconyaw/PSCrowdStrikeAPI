@@ -59,7 +59,6 @@ $IdSampleRes = $IdRetJson | ConvertFrom-Json
 $DetailSampleRes = $DetailRetJson | ConvertFrom-Json
 
 Describe "Search-CSIOCProcess" {
-	$Token = "Test_Token"
 	$TestCases = @(
 		@{ Type = "domain"; Value = "www.google.com";   DeviceId = "testdevice"; Limit = $null; Expect = "Success" },
 		@{ Type = "domain"; Value = "www.google.com";   DeviceId = "testdevice"; Limit = 10;    Expect = "Success" },
@@ -81,15 +80,15 @@ Describe "Search-CSIOCProcess" {
 
 
 			if ($Limit -eq $null -and $Expect -eq "Success") {
-				Search-CSIOCProcessId -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId |
+				Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId |
 				Should be $IdSampleRes
 				Assert-VerifiableMocks
 			} elseif ($Limit -ne $null -and $Expect -eq "Success") {
-				Search-CSIOCProcessId -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit |
+				Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit |
 				Should be $IdSampleRes
 				Assert-VerifiableMocks
 			} elseif ($Limit -ne $null -and $Expect -eq "Error") {
-				{ Search-CSIOCProcessId -Token $Token -Type $Type -Value $Value -Limit $Limit } | Should throw
+				{ Search-CSIOCProcessId -Type $Type -Value $Value -Limit $Limit } | Should throw
 			}
 		}
 	}
@@ -103,17 +102,17 @@ Describe "Search-CSIOCProcess" {
 
 
 			if ($Limit -eq $null -and $Expect -eq "Success") {
-				Search-CSIOCProcess -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId |
+				Search-CSIOCProcess -Type $Type -Value $Value -DeviceId $DeviceId |
 				Should be $DetailSampleRes
 				Assert-VerifiableMocks
 				Assert-MockCalled -CommandName Invoke-CSRestMethod -Times 2 -Exactly -Scope It
 			} elseif ($Limit -ne $null -and $Expect -eq "Success") {
-				Search-CSIOCProcess -Token $Token -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit |
+				Search-CSIOCProcess -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit |
 				Should be $DetailSampleRes
 				Assert-VerifiableMocks
 				Assert-MockCalled -CommandName Invoke-CSRestMethod -Times 2 -Exactly -Scope It
 			} elseif ($Limit -ne $null -and $Expect -eq "Error") {
-				{ Search-CSIOCProcess -Token $Token -Type $Type -Value $Value -Limit $Limit } | Should throw
+				{ Search-CSIOCProcess -Type $Type -Value $Value -Limit $Limit } | Should throw
 			}
 		}
 	}

@@ -22,23 +22,23 @@ Describe "Invoke-CSRestMethod" {
 	}
 
     It "Given value -Method '<HttpMethod>' -Body '<B>', it expect verified mocks call." -TestCases @(
-		@{ Token = $token; Endpoint = "devices/queries/devices/v1?filter=local_ip: '1.1.1.1'"; HttpMethod = "Get"; B = $null},
-		@{ Token = $token; Endpoint = "devices/entities/devices-actions/v2?action_name=contain"; HttpMethod = "Post"; B = $postv1},
-		@{ Token = $token; Endpoint = "detects/entities/detects/v2"; HttpMethod = "Patch"; B = $patchv1},
-		@{ Token = $token; Endpoint = "policy/entities/prevention/v1?ids=test"; HttpMethod = "Delete"; B = $null}
+		@{Endpoint = "devices/queries/devices/v1?filter=local_ip: '1.1.1.1'"; HttpMethod = "Get"; B = $null},
+		@{Endpoint = "devices/entities/devices-actions/v2?action_name=contain"; HttpMethod = "Post"; B = $postv1},
+		@{Endpoint = "detects/entities/detects/v2"; HttpMethod = "Patch"; B = $patchv1},
+		@{Endpoint = "policy/entities/prevention/v1?ids=test"; HttpMethod = "Delete"; B = $null}
 	) {
-		param ($Token, $Endpoint, $HttpMethod, $B)
+		param ($Endpoint, $HttpMethod, $B)
 		$header = @{
 			Accept = "application/json"
-			Authorization = "$($Token.token_type) $($Token.access_token)"
+			Authorization = "$($token.token_type) $($token.access_token)"
 		}
 		$url = "https://api.crowdstrike.com/" + $Endpoint
 		if ($B -eq $null) {
 			Mock Invoke-RestMethod { return @{} } -Verifiable -ParameterFilter { $Uri -eq $url; $Method -eq $HttpMethod; $Headers -eq $header }
-			Invoke-CSRestMethod -Token $Token -Endpoint $Endpoint -Method $HttpMethod
+			Invoke-CSRestMethod -Endpoint $Endpoint -Method $HttpMethod
 		} else {
 			Mock Invoke-RestMethod { return @{} } -Verifiable -ParameterFilter { $Uri -eq $url; $Method -eq $HttpMethod; $Headers -eq $header; $Body = $B }
-			Invoke-CSRestMethod -Token $Token -Endpoint $Endpoint -Method $HttpMethod -Body $B
+			Invoke-CSRestMethod -Endpoint $Endpoint -Method $HttpMethod -Body $B
 		}
 
 		Assert-VerifiableMocks

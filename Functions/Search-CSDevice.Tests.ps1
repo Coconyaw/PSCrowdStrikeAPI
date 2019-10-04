@@ -1,8 +1,7 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . "$here\$sut"
-
-$token = @{access_token = "Access_token"; token_type= "bearer"; expires_in = 1799; expiration_time = "2019/09/03 12:00:00"}
+. ./Invoke-CSRestMethod.ps1
 
 Describe "Construct-FilterString" {
 	$TestCases = @(
@@ -72,7 +71,7 @@ Describe "Search-CSDevice" {
 	It "Search-CSDevice will be called Aids count if AidOnly is OFF. (In this test, Aids count is 5.)" {
 		Mock Search-CSDeviceAids { return $RetAids }
 		Mock Search-CSDeviceDetail { return "Success" }
-		Search-CSDevice -Token $token -Hostname "Test" | Should be "Success"
+		Search-CSDevice -Hostname "Test" | Should be "Success"
 		Assert-MockCalled -CommandName Search-CSDeviceAids -Time 1 -Exactly -Scope It
 		Assert-MockCalled -CommandName Search-CSDeviceDetail -Time 5 -Exactly -Scope It
 	}
@@ -80,7 +79,7 @@ Describe "Search-CSDevice" {
 	It "Not search-detail if AidOnly is ON." {
 		Mock Search-CSDeviceAids { return $RetAids }
 		Mock Search-CSDeviceDetail { return "Error. Search-CSDeviceDetail should not be called if AidOnly is ON." }
-		Search-CSDevice -Token $token -Hostname "Test" -AidOnly | Should be $RetAids
+		Search-CSDevice -Hostname "Test" -AidOnly | Should be $RetAids
 		Assert-MockCalled -CommandName Search-CSDeviceAids -Time 1 -Exactly -Scope It
 		Assert-MockCalled -CommandName Search-CSDeviceDetail -Time 0 -Exactly -Scope It
 	}

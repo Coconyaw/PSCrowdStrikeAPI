@@ -11,13 +11,12 @@
 	The Aid you want to connect
 	.OUTPUTS
 	.NOTES
+	.Sample
+	New-CSRTRSession -Aid 123abc
 	#>
 
 	[CmdletBinding()]
 	param (
-		[Parameter(Mandatory = $true)]
-		$Token,
-
 		[Parameter(Mandatory = $true)]
 		[string]
 		$Aid
@@ -29,7 +28,7 @@
 	}
 
 	process {
-		Invoke-CSRestMethod -Token $Token -Endpoint $base -Method "POST" -Body $body
+		Invoke-CSRestMethod -Endpoint $base -Method "POST" -Body $body
 	}
 
 	end {

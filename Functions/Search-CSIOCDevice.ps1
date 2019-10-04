@@ -1,11 +1,8 @@
 ﻿function Search-CSIOCDevice {
 	<#
 	.SYNOPSIS
-	Invoke Search-CSIOCDeviceAid, then invoke Search-CSDeviceDetail to get detail of the machine.
+	Search the device deteil info which access spesified IoC.
 	.DESCRIPTION
-	
-	.PARAMETER <Token>
-	    Token: Access token of CrowdStike oauth2. Get from Get-CSAccessToken cmdlet.
 	.PARAMETER <Type>
 		The type of indicator from the list of supported indicator types.
 		Supported type: domain, md5, sha256
@@ -22,15 +19,12 @@
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/24
-	  Purpose/Change: Initial script development
+	  Purpose/Change: Delete argument of Token
 	.EXAMPLE
-	  Search-CSIOCDeviceDetail -Token $Token -Type domain -Value www.example.com -Limit 10
+	  Search-CSIOCDevice -Type domain -Value www.example.com -Limit 10
 	#>
 	[CmdletBinding()]
 	param (
-		[Parameter(Mandatory=$true)]
-		$Token,
-
 		[Parameter(Mandatory=$true)]
 		[ValidateSet("domain", "md5", "sha256")]
 		[string]
@@ -54,9 +48,9 @@
 	
 	process {
 		if ($PSBoundParameters.ContainsKey('Limit')) {
-			$ret = Search-CSIOCDeviceAid -Token $Token -Type $Type -Value $Value -Limit $Limit
+			$ret = Search-CSIOCDeviceAid -Type $Type -Value $Value -Limit $Limit
 		} else {
-			$ret = Search-CSIOCDeviceAid -Token $Token -Type $Type -Value $Value
+			$ret = Search-CSIOCDeviceAid -Type $Type -Value $Value
 		}
 
 		# AidOnlyフラグがOnなら、Aidだけ取得して返す
@@ -68,7 +62,7 @@
 		$aids = $ret.resources
 
 		foreach ($aid in $aids) {
-			Search-CSDeviceDetail -Token $Token -Aid $aid
+			Search-CSDeviceDetail -Aid $aid
 		}
 	}
 }
@@ -76,11 +70,7 @@
 function Search-CSIOCDeviceAid {
 	<#
 	.SYNOPSIS
-	
-	.DESCRIPTION
-	
-	.PARAMETER <Token>
-	    Token: Access token of CrowdStike oauth2. Get from Get-CSAccessToken cmdlet.
+	Get detailed information of the device.
 	.PARAMETER <Type>
 		The type of indicator from the list of supported indicator types.
 		Supported type: domain, md5, sha256
@@ -95,15 +85,12 @@ function Search-CSIOCDeviceAid {
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/24
-	  Purpose/Change: Initial script development
+	  Purpose/Change: Delete Argument of Token
 	.EXAMPLE
-	  Search-CSIOCDeviceAid -Token $Token -Type domain -Value www.example.com -Limit 10
+	  Search-CSIOCDeviceAid -Type domain -Value www.example.com -Limit 10
 	#>
 	[CmdletBinding()]
 	param (
-		[Parameter(Mandatory=$true)]
-		$Token,
-
 		[Parameter(Mandatory=$true)]
 		[ValidateSet("domain", "md5", "sha256")]
 		[string]
@@ -132,6 +119,6 @@ function Search-CSIOCDeviceAid {
 	
 	process {
 		$method = "Get"
-		Invoke-CSRestMethod -Token $Token -Method $method -Endpoint $base -Body $body
+		Invoke-CSRestMethod -Method $method -Endpoint $base -Body $body
 	}
 }

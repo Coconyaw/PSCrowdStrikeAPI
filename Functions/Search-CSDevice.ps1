@@ -4,8 +4,6 @@
 	 Search-CSDevice: Get Device information from CrowdStrike
 	.DESCRIPTION
 	 与えられたフィルタパラメータを使用してDeviceAPIに接続し、検索結果を返す
-	.PARAMETER <Token>
-	 Accesstoken of crowdstrike api
 	.PARAMETER <HostName>
 	.PARAMETER <LocalIp>
 	.PARAMETER <ExternalIp>
@@ -15,6 +13,7 @@
 	.PARAMETER <Offset>
 	.PARAMETER <Limit>
 	.PARAMETER <AidOnly>
+	Return device aid only.
 	.INPUTS
 	  <Inputs if any, otherwise state None>
 	.OUTPUTS
@@ -23,16 +22,16 @@
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/02
-	  Purpose/Change: Initial script development
+	  Purpose/Change: Delete argument of Token
 	  
 	.EXAMPLE
-	 Search-CSDevice -Token $token -PlatForm Windows -Offset 100 -Limit 1000
+	 Search-CSDevice -PlatForm Windows -Offset 100 -Limit 1000
+	 Search-CSDevice -LocalIp 10.0.0.1
+	 Search-CSDevice -HostName "Test*" -Status Normal
+	 Search-CSDevice -PlatForm "CentOS 7" -AidOnly
 	#>
 	[CmdletBinding()]
 	Param (
-		[Parameter(Mandatory=$true)]
-		$Token,
-
 		[string]
 		$HostName,
 
@@ -107,19 +106,19 @@
 		# AidOnlyフラグがOnなら、Aidだけ取得して返す
 		if ($AidOnly) {
 			Write-Verbose "AidOnly: Return only aids from '/devices/queries/devices/v1'"
-			Search-CSDeviceAids $Token $Params
+			Search-CSDeviceAids $Params
 			return
 		}
 
 		Write-Verbose "Search detail of devices from '/devices/entities/devices/v1'"
-		$aids = (Search-CSDeviceAids $Token $Params).resources
+		$aids = (Search-CSDeviceAids $Params).resources
 
 		if ($aids.Count -eq 0) {
 			Write-Error "No aid Found: $endpoint"
 		}
 
 		foreach ($aid in $aids) {
-			Search-CSDeviceDetail $Token $Aid
+			Search-CSDeviceDetail $Aid
 		}
 	}
 	
@@ -132,21 +131,18 @@ function Search-CSDeviceDetail  {
 	[CmdletBinding()]
 	Param (
 		[Parameter(Mandatory=$true)]
-		$Token,
-
-		[Parameter(Mandatory=$true)]
 		[string]
 		$Aid
 	)
 
 	$base = "/devices/entities/devices/v1"
 	$body = @{ids = $Aid}
-	Invoke-CSRestMethod -Token $Token -Method "Get" -Endpoint $base -Body $body
+	Invoke-CSRestMethod -Method "Get" -Endpoint $base -Body $body
 }
 
-function Search-CSDeviceAids($Token, $Params) {
+function Search-CSDeviceAids($Params) {
 	$endpoint = "/devices/queries/devices/v1"
-	Invoke-CSRestMethod -Token $Token -Endpoint $endpoint -Method "Get" -Body $Params
+	Invoke-CSRestMethod -Endpoint $endpoint -Method "Get" -Body $Params
 }
 
 function Construct-FilterString($fparams) {

@@ -34,7 +34,6 @@ $RetObj = '{
 '
 
 $MockReturnObj = $RetObj | ConvertFrom-Json
-$Token = "Access_Token"
 
 Describe "Search-CSIOCDevice" {
 	$TestCases = @(
@@ -55,15 +54,15 @@ Describe "Search-CSIOCDevice" {
 		Mock Search-CSDeviceDetail { return "Success" } -Scope It
 
 		if ($Limit -eq $null -and $Expect -eq "Success") {
-			Search-CSIOCDevice -Token $Token -Type $Type -Value $Value | Should be $Expect
+			Search-CSIOCDevice -Type $Type -Value $Value | Should be $Expect
 			Assert-VerifiableMocks
 			Assert-MockCalled -CommandName Search-CSDeviceDetail -Times 10 -Exactly -Scope It
 		} elseif ($Limit -ne $null -and $Expect -eq "Success") {
-			Search-CSIOCDevice -Token $Token -Type $Type -Value $Value -Limit $Limit | Should be $Expect
+			Search-CSIOCDevice -Type $Type -Value $Value -Limit $Limit | Should be $Expect
 			Assert-VerifiableMocks
 			Assert-MockCalled -CommandName Search-CSDeviceDetail -Times 10 -Exactly -Scope It
 		} elseif ($Limit -ne $null -and $Expect -eq "Error") {
-			{ Search-CSIOCDevice -Token $Token -Type $Type -Value $Value -Limit $Limit } | Should throw
+			{ Search-CSIOCDevice -Type $Type -Value $Value -Limit $Limit } | Should throw
 		}
     }
 
@@ -71,7 +70,7 @@ Describe "Search-CSIOCDevice" {
 		Mock Search-CSIOCDeviceAid { return $MockReturnObj } -Verifiable -Scope It
 		Mock Search-CSDeviceDetail { return "Success" } -Scope It
 
-		Search-CSIOCDevice -Token $Token -Type domain -Value "test.example.com" -AidOnly
+		Search-CSIOCDevice -Type domain -Value "test.example.com" -AidOnly
 		Assert-MockCalled -CommandName Search-CSDeviceDetail -Times 0 -Exactly -Scope It
 	}
 }
