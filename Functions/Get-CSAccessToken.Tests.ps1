@@ -24,15 +24,6 @@ Describe "Get-CSAccessToken" {
 	$expire = (Get-Date).AddMinutes(1).ToString()
 	$cachePath = "TestDrive:\.cscache.json"
 	$cache = "{ 'access_token':  'Cached_Token', 'token_type':  'bearer', 'expires_in':  1799, 'expiration_time':  '$expire' }"
-	$p = @{
-		Uri = "https://api.crowdstrike.com/oauth2/token"
-		Method = "Post"
-		Headers = @{
-			"Accept" = "application/json"
-			"Content-Type" = "application/x-www-form-urlencoded"
-		}
-		Body = "client_id=$ClientID&client_secret=$ClientSecret"
-	}
 
 	# ClientIdとSecKeyを渡したら、そのIDパスを使用してOauthAPIにアクセスし、AccessTokenを取得すること
 	Context "Use ClientId and ClientSecret Param" {
