@@ -16,11 +16,11 @@ Describe "Get-CSAccessToken" {
 	$token = @{access_token = "Test_Token"; token_type = "bearer"; expires_in =1799}
 	$oauthUri = "https://api.crowdstrike.com/oauth2/token"
 	$ctype = "application/x-www-form-urlencoded"
-	$ClientId = "1c98b7be5a764ed39936c77a7b54f216"
-	$SecretKey = "J2509xF3m7l8Ggua4VD6APnIOCLHtUMzWcqYf1pK"
+	$ClientId = "sample_id"
+	$SecretKey = "sample_secret"
 	$body = "client_id=$ClientId&client_secret=$SecretKey"
 	$configPath = "TestDrive:\.csconfig.json"
-	$config = '{ "client_id": "1c98b7be5a764ed39936c77a7b54f216", "client_secret": "J2509xF3m7l8Ggua4VD6APnIOCLHtUMzWcqYf1pK"}'
+	$config = '{ "client_id": "sample_id", "client_secret": "sample_secret"}'
 	$expire = (Get-Date).AddMinutes(1).ToString()
 	$cachePath = "TestDrive:\.cscache.json"
 	$cache = "{ 'access_token':  'Cached_Token', 'token_type':  'bearer', 'expires_in':  1799, 'expiration_time':  '$expire' }"
