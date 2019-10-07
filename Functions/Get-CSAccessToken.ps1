@@ -14,7 +14,7 @@ function Get-CSAccessToken {
 	    Config: Path to configuration file.
 		Format: json
 		Default: $home\.csconfig.json
-		sample: { "client_id": "1c98b7be5a764ed39936c77a7b54f216", "client_secret": "J2509xF3m7l8Ggua4VD6APnIOCLHtUMzWcqYf1pK"}
+		sample: { "client_id": "sample_id_123abc", "client_secret": "sample_secret_password"}
 	.PARAMETER <cache>
 	    Config: Path to cache file.
 		Format: json
