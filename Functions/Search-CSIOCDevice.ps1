@@ -59,7 +59,7 @@
 			return $ret
 		}
 
-		$aids = $ret.resources
+		$aids = $ret
 
 		foreach ($aid in $aids) {
 			Search-CSDeviceDetail -Aid $aid

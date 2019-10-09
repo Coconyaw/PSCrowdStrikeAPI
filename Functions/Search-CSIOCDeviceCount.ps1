@@ -11,9 +11,7 @@
 	  <Inputs if any, otherwise state None>
 	.OUTPUTS
 	  Success Sample object.:
-		meta      : @{query_time=0.008894851; trace_id=2ca74af5-81be-49da-950e-b08b3ae72387}
-		resources : {@{id=domain:www.sample.com; type=domain; value=www.sample.com; device_count=3}}
-		errors    : {}
+		@{id=domain:www.sample.com; type=domain; value=www.sample.com; device_count=3}
 	.NOTES
 	  Version:        1.0
 	  Author:         Kazuma Takahashi

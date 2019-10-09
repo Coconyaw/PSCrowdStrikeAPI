@@ -111,7 +111,7 @@
 		}
 
 		Write-Verbose "Search detail of devices from '/devices/entities/devices/v1'"
-		$aids = (Search-CSDeviceAids $Params).resources
+		$aids = Search-CSDeviceAids $Params
 
 		if ($aids.Count -eq 0) {
 			Write-Error "No aid Found: $endpoint"

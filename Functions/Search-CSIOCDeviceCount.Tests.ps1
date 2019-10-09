@@ -15,7 +15,7 @@ Describe "Search-CSIOCDeviceCount" {
     It "Given -Type '<Type>' -Value '<Value>', it expect verifiable mock call." -TestCase $TestCases {
 		Param ($Type, $Value)
 		$body = @{type = $Type; value = $Value}
-		Mock Invoke-CSRestMethod { return @{meta = @{}; resources = @{}; errors = @{}} } -Verifiable `
+		Mock Invoke-CSRestMethod { return @{} } -Verifiable `
 		-ParameterFilter {$Endpoint -eq $base; $Method -eq "Get"; $Body -eq $body}
 		Search-CSIOCDeviceCount -Type $Type -Value $Value
 		Assert-VerifiableMocks

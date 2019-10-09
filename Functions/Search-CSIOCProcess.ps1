@@ -50,9 +50,9 @@
 
 	Process {
 		if ($PSBoundParameters.ContainsKey('Limit')) {
-			$pids = (Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit).resources
+			$pids = Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId -Limit $Limit
 		} else {
-			$pids = (Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId).resources
+			$pids = Search-CSIOCProcessId -Type $Type -Value $Value -DeviceId $DeviceId
 		}
 
 		foreach ($id in $pids) {

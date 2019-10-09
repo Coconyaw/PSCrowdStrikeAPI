@@ -4,36 +4,18 @@ $sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
 . .\Invoke-CSRestMethod.ps1
 . .\Search-CSDevice.ps1
 
-$RetObj = '{
-    "meta":  {
-                 "query_time":  0.021829515,
-                 "pagination":  {
-                                    "offset":  "0:3584193470",
-                                    "limit":  10,
-                                    "next_page":  "/indicators/queries/devices/v1?type=domain\u0026value=www.google.com\u0026offset=0:3584193470\u0026limit=10"
-                                },
-                 "trace_id":  "ab4bea15-64ad-4851-9d8c-b5361d3eb43c",
-                 "entity":  "/devices/entities/devices/v1{?ids*}"
-             },
-    "resources":  [
-                      "00000000000000000000000000000000",
-                      "00043f1d2db54b037cc3a5af81beab75",
-                      "001ec300e5b747616bbb1209b354fbbe",
-                      "002463e0c8704f22582ea0e4d9785434",
-                      "00271980c06a4be04b7aa2342cee0992",
-                      "003a387744d24fdf66aa0566ab6c6f59",
-                      "003faa6c8a384a027fe04906a98683f2",
-                      "0043d053537740a36b3590598c6843b5",
-                      "0048ec47f1b842374e2379c61930dca5",
-                      "00528c34bd544aad4fc8c6656453bb4e"
-                  ],
-    "errors":  [
-
-               ]
-}
-'
-
-$MockReturnObj = $RetObj | ConvertFrom-Json
+$MockReturnObj = @(
+				"00000000000000000000000000000000",
+				"00043f1d2db54b037cc3a5af81beab75",
+				"001ec300e5b747616bbb1209b354fbbe",
+				"002463e0c8704f22582ea0e4d9785434",
+				"00271980c06a4be04b7aa2342cee0992",
+				"003a387744d24fdf66aa0566ab6c6f59",
+				"003faa6c8a384a027fe04906a98683f2",
+				"0043d053537740a36b3590598c6843b5",
+				"0048ec47f1b842374e2379c61930dca5",
+				"00528c34bd544aad4fc8c6656453bb4e"
+				)
 
 Describe "Search-CSIOCDevice" {
 	$TestCases = @(
