@@ -9,6 +9,7 @@
 	.PARAMETER <ExternalIp>
 	.PARAMETER <OSVersion>
 	.PARAMETER <PlatForm>
+	.PARAMETER <ProductType>
 	.PARAMETER <Status>
 	.PARAMETER <Offset>
 	.PARAMETER <Limit>
@@ -49,6 +50,10 @@
 		[string]
 		$PlatForm,
 
+		[ValidateSet("Workstation", "Server", "Domain Controller")]
+		[string]
+		$ProductType,
+
 		[ValidateSet("Normal", "containment_pending", "contained", "lift_containment_pending")]
 		[string]
 		$Status,
@@ -74,11 +79,9 @@
 		if ($PSBoundParameters.ContainsKey("Offset")) {
 			$params.Add('offset', $Offset)
 		}
-
 		if ($PSBoundParameters.ContainsKey("Limit")) {
 			$params.Add('limit', $Limit)
 		}
-
 		if ($PSBoundParameters.ContainsKey("HostName")) {
 			$filters.add("hostname", $HostName)
 		}
@@ -93,6 +96,9 @@
 		}
 		if ($PSBoundParameters.ContainsKey("PlatForm")) {
 			$filters.add("platform_name", $PlatForm)
+		}
+		if ($PSBoundParameters.ContainsKey("ProductType")) {
+			$filters.add("product_type_desc", $ProductType)
 		}
 		if ($PSBoundParameters.ContainsKey("Status")) {
 			$filters.add("status", $Status)
