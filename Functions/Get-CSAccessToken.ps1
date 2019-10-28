@@ -53,8 +53,9 @@ function Get-CSAccessToken {
 	
 	begin {
 		# Initialize Credential
+		$ConfigBasePath = Join-Path -Path $home -ChildPath ".config" | Join-Path -ChildPath "PSCrowdStrikeApi"
 		if ($ClientId -eq "" -or $SecretKey -eq "") {
-			if ($Config -eq "") { $Config = "$home\.csconfig.json" } # Use default config path.
+			if ($Config -eq "") { $Config = Join-Path -Path $ConfigBasePath -ChildPath "csconfig.json" } # Use default config path.
 			Write-Verbose "[+] Use config credential."
 
 			if (!(Test-Path $Config)) { throw "ConfigFileNotFoundError" }
@@ -65,7 +66,7 @@ function Get-CSAccessToken {
 		}
 
 		# Initialize cache file path
-		if ($Cache -eq "") { $Cache = "$home\.cscache.json" }
+		if ($Cache -eq "") { $Cache = Join-Path -Path $ConfigBasePath -ChildPath "cscache.json" }
 
 		# Load cache
 		$cacheValue = $null
