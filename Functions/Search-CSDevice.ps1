@@ -11,6 +11,7 @@
 	.PARAMETER <PlatForm>
 	.PARAMETER <ProductType>
 	.PARAMETER <Status>
+	.PARAMETER <OU>
 	.PARAMETER <Offset>
 	.PARAMETER <Limit>
 	.PARAMETER <AidOnly>
@@ -33,12 +34,15 @@
 	#>
 	[CmdletBinding()]
 	Param (
+		[ValidateNotNullOrEmpty()]
 		[string]
 		$HostName,
 
+		[ValidateNotNullOrEmpty()]
 		[String]
 		$LocalIp,
 
+		[ValidateNotNullOrEmpty()]
 		[string]
 		$ExternalIp,
 
@@ -57,6 +61,10 @@
 		[ValidateSet("Normal", "containment_pending", "contained", "lift_containment_pending")]
 		[string]
 		$Status,
+
+		[ValidateNotNullOrEmpty()]
+		[string]
+		$OU,
 
 		[ValidateRange(1, 5000)]
 		[int]
@@ -102,6 +110,9 @@
 		}
 		if ($PSBoundParameters.ContainsKey("Status")) {
 			$filters.add("status", $Status)
+		}
+		if ($PSBoundParameters.ContainsKey("OU")) {
+			$filters.add("ou", $OU)
 		}
 
 		if ($filters.Count -gt 0) {
