@@ -64,13 +64,13 @@ Describe "Get-CSAccessToken" {
 			Remove-CacheAndConfig
 			Mock Invoke-RestMethod  { throw $errRes }
 			$expectedErr = $errRes | ConvertFrom-Json
-			{ Get-CSAccessToken -ClientId "test" -ClientSecret "J2509xF3m7l8Ggua4VD6APnIOCLHtUMzWcqYf1pK" -Cache $cachePath } | Should throw $expectedErr
+			{ Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath } | Should throw $expectedErr
 		}
 		It "Miss ClientSecret" {
 			Remove-CacheAndConfig
 			Mock Invoke-RestMethod  { throw $errRes }
 			$expectedErr = $errRes | ConvertFrom-Json
-			{ Get-CSAccessToken -ClientId "1c98b7be5a764ed39936c77a7b54f216" -ClientSecret "test" -Cache $cachePath} | Should throw $expectedErr
+			{ Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath} | Should throw $expectedErr
 		}
 		It "Miss both ClientID and ClientSecret" {
 			Remove-CacheAndConfig
