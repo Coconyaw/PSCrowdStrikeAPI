@@ -1,0 +1,17 @@
+{
+    "errors": [],
+    "meta": {
+        "pagination": {
+            "limit": 4,
+            "offset": 0,
+            "total": 1130
+        },
+        "powered_by": "msa-api",
+        "query_time": 0.020452436,
+        "trace_id": "77710051-9d0b-46ba-af55-cbeb3983da4e"
+    },
+    "resources": [
+        "ldt:3752a1cc570043a16606e94955489964:817585689360212029",
+        "ldt:e137092ebd0742be7eb88aa9eaaf02d7:817585689360212022"
+   ]
+}
