@@ -10,16 +10,27 @@
 		Method: HTTP Method of REST API.
 	.PARAMETER <Body>
 		Body: Body of REST API
+		In case GET method, you can pass the body type [PSCustomObject].
+		In case POST method, you must pas the body that was converted to json.
 	.INPUTS
 	.OUTPUTS
 	.NOTES
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
-	  Creation Date:  2019/09/03
-	  Purpose/Change: Delete argument of Token.
+	  Creation Date:  2019/12/02
+	  Purpose/Change: Add examle for reqeust with body parameter.
 	.EXAMPLE
+	  # Get Request without body
 	  Invoke-CSRestMethod -Endpoint "device/entities/queries/v1?filter=limit: 10" -Method Get
+	.EXAMPLE
+	  # Get Request with body
+	  $body = [ordered]@{q = "SampleHost}
 	  Invoke-CSRestMethod -Endpoint "device/entities/queries/v1?filter=limit: 10" -Method Post -Body $body
+	.EXAMPLE
+	  # Post Request
+	  $BodyObject = [ordered]@{q = "SampleHost}
+	  $body = $BodyObject | ConvertTo-Json
+	  Invoke-CSRestMethod -Endpoint "detects/entities/summaries/GET/v1" -Method Post -Body $body
 	#>
 	[CmdletBinding()]
 	param (
@@ -52,7 +63,9 @@
 	
 	process {
 		if ($PSBoundParameters.ContainsKey('Body')) {
-			# $b = $Body | ConvertTo-Json
+			Write-Verbose "Body:"
+			Write-Verbose $Body
+
 			$header.Add("Content-Type", "application/json")
 			(Invoke-RestMethod -Uri $url -Method $Method -Headers $header -Body $Body).resources
 		} else {
