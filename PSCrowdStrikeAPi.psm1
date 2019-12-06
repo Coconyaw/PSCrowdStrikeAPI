@@ -18,6 +18,7 @@ Foreach ($s in $src) {
 }
 
 $FunctionsToExport = 'Get-CSAccessToken', 'Search-CSDevice', 'Search-CSDeviceDetail', 'Search-CSIOCDeviceCount', `
-					 'Search-CSIOCDevice', 'Search-CSIOCProcess', 'New-CSRTRSession', 'Start-CSRTRCommand'
+					 'Search-CSIOCDevice', 'Search-CSIOCProcess', 'New-CSRTRSession', 'Start-CSRTRCommand', `
+					 'Search-CSDetection'
 
 Export-ModuleMember -Function $FunctionsToExport
