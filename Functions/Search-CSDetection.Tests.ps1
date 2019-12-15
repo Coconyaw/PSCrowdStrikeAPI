@@ -9,6 +9,17 @@ $idSearchUri = "/detects/queries/detects/v1"
 $detailSearchUri = "/detects/entities/summaries/GET/v1"
 
 Describe "Search-CSDetection" {
+    It "q = 'Test' , expect call Search-CSDetectionDetail one times" {
+		$q = @{ q = "Test" }
+		Mock Invoke-CSRestMethod { return $IdsRes.resources } `
+		-Verifiable `
+		-ParameterFilter { $Uri -eq $idSearchUri; $Method -eq "GET"; $Endpoint -eq $idSearchUri; $Body -eq $q } -Scope It
+		Mock Search-CSDetectionDetail { return $true } -Verification
+
+		Search-CSDetection -q "test"
+		Assert-MockCalled Search-CSDetectionDetail -Exactly 1
+    }
+
 	It "q = 'No ids', expect Error of 'No detection id'" {
 		Mock Invoke-CSRestMethod { return $null } `
 		-Verifiable `
