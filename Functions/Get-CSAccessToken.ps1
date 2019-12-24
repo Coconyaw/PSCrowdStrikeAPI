@@ -13,12 +13,12 @@ function Get-CSAccessToken {
 	.PARAMETER <Config>
 	    Config: Path to configuration file.
 		Format: json
-		Default: $home\.csconfig.json
+		Default: $home\.config\PSCrowdStrikeApi\csconfig.json
 		sample: { "client_id": "sample_id_123abc", "client_secret": "sample_secret_password"}
 	.PARAMETER <cache>
 	    Config: Path to cache file.
 		Format: json
-		Default: $home\.cscache.json
+		Default: $home\.config\PSCrowdStrikeApi\cscache.json
 		Sample: { 'access_token':  'Cached_Token', 'token_type':  'bearer', 'expires_in':  1799, 'expiration_time':  '2019/09/03 12:00:00' }
 	.INPUTS
 	  <Inputs if any, otherwise state None>
