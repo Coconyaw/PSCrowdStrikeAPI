@@ -30,7 +30,7 @@ function Get-CSAccessToken {
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/02
 	  Purpose/Change: Initial script development
-	  
+
 	.EXAMPLE
 	  Get-CSAccessToken
 	  Get-CSAccessToken -ClientId exampleId01 -ClientSecret s3cr3tkey
@@ -50,7 +50,7 @@ function Get-CSAccessToken {
 		[string]
 		$Cache
 	)
-	
+
 	begin {
 		# Initialize Credential
 		$ConfigBasePath = Join-Path -Path $home -ChildPath ".config" | Join-Path -ChildPath "PSCrowdStrikeApi"
@@ -74,7 +74,7 @@ function Get-CSAccessToken {
 			$cacheValue = Get-Content $Cache | ConvertFrom-Json
 		}
 	}
-	
+
 	process {
 
 		# キャッシュがあったらtokenの有効期限をチェックし、期限内ならキャッシュから値を返す
