@@ -1,5 +1,5 @@
 ﻿function Search-CSDetection {
-	<#
+<#
 	.SYNOPSIS
 	 Search-CSDetetion: Get detection information from CrowdStrike
 	.DESCRIPTION
@@ -20,44 +20,44 @@
 	.EXAMPLE
 	 Search-CSDetection -q "username"
 	#>
-	[CmdletBinding()]
-	Param (
-		# q :query string
-		[Parameter(Mandatory=$true)]
-		[ValidateNotNullOrEmpty()]
-		[string]
-		$q
-	)
+  [CmdletBinding()]
+  param(
+    # q :query string
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $q
+  )
 
-	Process {
-		$ids = Search-CSDetectionIds -q $q
-		if ($null -eq $ids) {
-			Throw "Search-CSDetection: No detection id"
-		}
+  process {
+    $ids = Search-CSDetectionIds -q $q
+    if ($null -eq $ids) {
+      throw "Search-CSDetection: No detection id"
+    }
 
-		Search-CSDetectionDetail $ids
-	}
+    Search-CSDetectionDetail $ids
+  }
 }
 
 function Search-CSDetectionIds {
-	param (
-		[Parameter(Mandatory=$true)]
-		[ValidateNotNullOrEmpty()]
-		[string]
-		$q
-	)
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [string]
+    $q
+  )
 
-	$base = "/detects/queries/detects/v1"
-	$body = @{ q = $q }
-	return Invoke-CSRestMethod -Endpoint $base -Method "Get" -Body $body
+  $base = "/detects/queries/detects/v1"
+  $body = @{ q = $q }
+  return Invoke-CSRestMethod -Endpoint $base -Method "Get" -Body $body
 }
 
 function Search-CSDetectionDetail {
-	param (
-		[string[]] $ids
-	)
+  param(
+    [string[]]$ids
+  )
 
-	$base = "/detects/entities/summaries/GET/v1"
-	$body = @{ ids = $ids } | ConvertTo-Json
-	return Invoke-CSRestMethod -Endpoint $base -Method "Post" -Body $body
+  $base = "/detects/entities/summaries/GET/v1"
+  $body = @{ ids = $ids } | ConvertTo-Json
+  return Invoke-CSRestMethod -Endpoint $base -Method "Post" -Body $body
 }

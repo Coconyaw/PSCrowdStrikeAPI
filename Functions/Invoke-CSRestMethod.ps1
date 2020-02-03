@@ -1,5 +1,5 @@
 ﻿function Invoke-CSRestMethod {
-	<#
+<#
 	.SYNOPSIS
 	 Invoke-CSRestMethod: Wrraper of Invoke-RestMethod for CrowdStrike API
 	.DESCRIPTION
@@ -32,48 +32,48 @@
 	  $body = $BodyObject | ConvertTo-Json
 	  Invoke-CSRestMethod -Endpoint "detects/entities/summaries/GET/v1" -Method Post -Body $body
 	#>
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true)]
-		[string]
-		$Endpoint,
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]
+    $Endpoint,
 
-		[Parameter(Mandatory=$true)]
-		[ValidateSet("Get", "Post", "Patch", "Delete")]
-		[string]
-		$Method,
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("Get","Post","Patch","Delete")]
+    [string]
+    $Method,
 
-		[Parameter(Mandatory=$false)]
-		$Body
-	)
-	
-	begin {
-		$Token = Get-CSAccessToken
-		Write-Verbose "Got Token. Expired time: $($Token.expiration_time)"
+    [Parameter(Mandatory = $false)]
+    $Body
+  )
 
-		$baseUrl = "https://api.crowdstrike.com"
-		$url = $baseUrl + $Endpoint
-		Write-Verbose "Method:$Method, URL:$url"
+  begin {
+    $Token = Get-CSAccessToken
+    Write-Verbose "Got Token. Expired time: $($Token.expiration_time)"
 
-		$header = @{
-			Accept = "application/json"
-			Authorization = "$($Token.token_type) $($Token.access_token)"
-		}
-	}
-	
-	process {
-		if ($PSBoundParameters.ContainsKey('Body')) {
-			Write-Verbose "Body:"
-			Write-Verbose $Body
+    $baseUrl = "https://api.crowdstrike.com"
+    $url = $baseUrl + $Endpoint
+    Write-Verbose "Method:$Method, URL:$url"
 
-			$header.Add("Content-Type", "application/json")
-			(Invoke-RestMethod -Uri $url -Method $Method -Headers $header -Body $Body).resources
-		} else {
-			(Invoke-RestMethod -Uri $url -Method $Method -Headers $header).resources
-		}
-	}
-	
-	end {
-		
-	}
+    $header = @{
+      Accept = "application/json"
+      Authorization = "$($Token.token_type) $($Token.access_token)"
+    }
+  }
+
+  process {
+    if ($PSBoundParameters.ContainsKey('Body')) {
+      Write-Verbose "Body:"
+      Write-Verbose $Body
+
+      $header.Add("Content-Type","application/json")
+      (Invoke-RestMethod -Uri $url -Method $Method -Headers $header -Body $Body).resources
+    } else {
+      (Invoke-RestMethod -Uri $url -Method $Method -Headers $header).resources
+    }
+  }
+
+  end {
+
+  }
 }

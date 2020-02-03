@@ -1,5 +1,5 @@
 ﻿function Search-CSIOCDeviceCount {
-	<#
+<#
 	.SYNOPSIS
 	 Get the count of devices accessed specified IoC.
 	.PARAMETER <Type>
@@ -21,28 +21,28 @@
 	.EXAMPLE
 	  Search-CSIOCDeviceCount -Type domain -Value www.example.com
 	#>
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true)]
-		[ValidateSet("domain", "md5", "sha256")]
-		[string]
-		$Type,
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("domain","md5","sha256")]
+    [string]
+    $Type,
 
-		[Parameter(Mandatory=$true)]
-		$Value
-	)
-	
-	begin {
-		$base = "/indicators/aggregates/devices-count/v1"
-		$body = @{type = $Type; value = $Value}
-	}
-	
-	process {
-		$method = "Get"
-		Invoke-CSRestMethod -Method $method -Endpoint $base -Body $body
-	}
-	
-	end {
-		
-	}
+    [Parameter(Mandatory = $true)]
+    $Value
+  )
+
+  begin {
+    $base = "/indicators/aggregates/devices-count/v1"
+    $body = @{ type = $Type; value = $Value }
+  }
+
+  process {
+    $method = "Get"
+    Invoke-CSRestMethod -Method $method -Endpoint $base -Body $body
+  }
+
+  end {
+
+  }
 }

@@ -1,21 +1,20 @@
-﻿function Search-CSDevice {
+﻿function Search-CSDeviceDetail {
 <#
 	.SYNOPSIS
-	 Search-CSDevice: Get Device information from CrowdStrike
+	 Search-CSDeviceDetail: Get Device detail information from /devices/entities/devices/v1
 	.DESCRIPTION
 	 与えられたフィルタパラメータを使用してDeviceAPIに接続し、検索結果を返す
+	.PARAMETER <Token>
+	 Accesstoken of crowdstrike api
 	.PARAMETER <HostName>
 	.PARAMETER <LocalIp>
 	.PARAMETER <ExternalIp>
 	.PARAMETER <OSVersion>
 	.PARAMETER <PlatForm>
-	.PARAMETER <ProductType>
 	.PARAMETER <Status>
-	.PARAMETER <OU>
 	.PARAMETER <Offset>
 	.PARAMETER <Limit>
 	.PARAMETER <AidOnly>
-	Return device aid only.
 	.INPUTS
 	  <Inputs if any, otherwise state None>
 	.OUTPUTS
@@ -24,25 +23,21 @@
 	  Version:        1.0
 	  Author:         Kazuma Takahashi
 	  Creation Date:  2019/09/02
-	  Purpose/Change: Delete argument of Token
+	  Purpose/Change: Initial script development
 	  
 	.EXAMPLE
-	 Search-CSDevice -PlatForm Windows -Offset 100 -Limit 1000
-	 Search-CSDevice -LocalIp 10.0.0.1
-	 Search-CSDevice -HostName "Test*" -Status Normal
-	 Search-CSDevice -PlatForm "CentOS 7" -AidOnly
+	 Search-CSDevice -Token $token -PlatForm Windows -Offset 100 -Limit 1000
 	#>
-  [CmdletBinding()]
   param(
-    [ValidateNotNullOrEmpty()]
+    [Parameter(Mandatory = $true)]
+    $Token,
+
     [string]
     $HostName,
 
-    [ValidateNotNullOrEmpty()]
     [string]
     $LocalIp,
 
-    [ValidateNotNullOrEmpty()]
     [string]
     $ExternalIp,
 
@@ -54,17 +49,9 @@
     [string]
     $PlatForm,
 
-    [ValidateSet("Workstation","Server","Domain Controller")]
-    [string]
-    $ProductType,
-
     [ValidateSet("Normal","containment_pending","contained","lift_containment_pending")]
     [string]
     $Status,
-
-    [ValidateNotNullOrEmpty()]
-    [string]
-    $OU,
 
     [ValidateRange(1,5000)]
     [int]
@@ -87,9 +74,11 @@
     if ($PSBoundParameters.ContainsKey("Offset")) {
       $params.Add('offset',$Offset)
     }
+
     if ($PSBoundParameters.ContainsKey("Limit")) {
       $params.Add('limit',$Limit)
     }
+
     if ($PSBoundParameters.ContainsKey("HostName")) {
       $filters.Add("hostname",$HostName)
     }
@@ -105,14 +94,8 @@
     if ($PSBoundParameters.ContainsKey("PlatForm")) {
       $filters.Add("platform_name",$PlatForm)
     }
-    if ($PSBoundParameters.ContainsKey("ProductType")) {
-      $filters.Add("product_type_desc",$ProductType)
-    }
     if ($PSBoundParameters.ContainsKey("Status")) {
       $filters.Add("status",$Status)
-    }
-    if ($PSBoundParameters.ContainsKey("OU")) {
-      $filters.Add("ou",$OU)
     }
 
     if ($filters.Count -gt 0) {
@@ -123,19 +106,19 @@
     # AidOnlyフラグがOnなら、Aidだけ取得して返す
     if ($AidOnly) {
       Write-Verbose "AidOnly: Return only aids from '/devices/queries/devices/v1'"
-      Search-CSDeviceAids $Params
+      Search-CSDeviceAids $Token $Params
       return
     }
 
     Write-Verbose "Search detail of devices from '/devices/entities/devices/v1'"
-    $aids = Search-CSDeviceAids $Params
+    $aids = (Search-CSDeviceAids $Token $Params).resources
 
     if ($aids.Count -eq 0) {
       Write-Error "No aid Found: $endpoint"
     }
 
     foreach ($aid in $aids) {
-      Search-CSDeviceDetail $Aid
+      Search-CSDevice $Token $Aid
     }
   }
 
@@ -144,9 +127,11 @@
   }
 }
 
-function Search-CSDeviceDetail {
-  [CmdletBinding()]
+function Search-CSDevice {
   param(
+    [Parameter(Mandatory = $true)]
+    $Token,
+
     [Parameter(Mandatory = $true)]
     [string]
     $Aid
@@ -154,12 +139,12 @@ function Search-CSDeviceDetail {
 
   $base = "/devices/entities/devices/v1"
   $body = @{ ids = $Aid }
-  Invoke-CSRestMethod -Method "Get" -Endpoint $base -Body $body
+  Invoke-CSRestMethod -Token $Token -Method "Get" -Endpoint $base -Body $body
 }
 
-function Search-CSDeviceAids ($Params) {
+function Search-CSDeviceAids ($Token,$Params) {
   $endpoint = "/devices/queries/devices/v1"
-  Invoke-CSRestMethod -Endpoint $endpoint -Method "Get" -Body $Params
+  Invoke-CSRestMethod -Token $Token -Endpoint $endpoint -Method "Get" -Body $Params
 }
 
 function Construct-FilterString ($fparams) {

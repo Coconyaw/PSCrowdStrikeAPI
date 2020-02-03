@@ -1,10 +1,10 @@
-﻿class Config {
-	[string]$client_id
-	[string]$client_secret
+﻿class Config{
+  [string]$client_id
+  [string]$client_secret
 }
 
 function Set-CSConfig {
-	<#
+<#
 	.SYNOPSIS
 	 Create configfile.
 	.DESCRIPTION
@@ -28,33 +28,33 @@ function Set-CSConfig {
 	.NOTES
 	#>
 
-	[CmdletBinding()]
-	param (
-		[String]
-		$Path,
+  [CmdletBinding()]
+  param(
+    [string]
+    $Path,
 
-		[string]
-		$ClientId,
+    [string]
+    $ClientId,
 
-		[string]
-		$ClientSecret
-	)
+    [string]
+    $ClientSecret
+  )
 
-	process {
-		if (!$PSBoundParameters.ContainsKey("Path")) {
-			$Path = "$home\.config\PSCrowdStrikeApi\csconfig.json"
-		}
-		if (!$PSBoundParameters.ContainsKey("ClientId")) {
-			$ClientId = Read-Host "Enter your client id"
-		}
-		if (!$PSBoundParameters.ContainsKey("ClientSecret")) {
-			$ClientSecret = Read-Host "Enter your client secret"
-		}
+  process {
+    if (!$PSBoundParameters.ContainsKey("Path")) {
+      $Path = "$home\.config\PSCrowdStrikeApi\csconfig.json"
+    }
+    if (!$PSBoundParameters.ContainsKey("ClientId")) {
+      $ClientId = Read-Host "Enter your client id"
+    }
+    if (!$PSBoundParameters.ContainsKey("ClientSecret")) {
+      $ClientSecret = Read-Host "Enter your client secret"
+    }
 
-		$conf = New-Object -TypeName Config
-		$conf.client_id = $ClientId
-		$conf.client_secret = $ClientSecret
+    $conf = New-Object -TypeName Config
+    $conf.client_id = $ClientId
+    $conf.client_secret = $ClientSecret
 
-		$conf | ConvertTo-Json -Compress | Out-File -LiteralPath $Path
-	}
+    $conf | ConvertTo-Json -Compress | Out-File -LiteralPath $Path
+  }
 }

@@ -1,5 +1,5 @@
 ﻿function Search-CSIOCDevice {
-	<#
+<#
 	.SYNOPSIS
 	Search the device deteil info which access spesified IoC.
 	.DESCRIPTION
@@ -23,52 +23,52 @@
 	.EXAMPLE
 	  Search-CSIOCDevice -Type domain -Value www.example.com -Limit 10
 	#>
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true)]
-		[ValidateSet("domain", "md5", "sha256")]
-		[string]
-		$Type,
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("domain","md5","sha256")]
+    [string]
+    $Type,
 
-		[Parameter(Mandatory=$true)]
-		$Value,
+    [Parameter(Mandatory = $true)]
+    $Value,
 
-		# TODO: implements offset
-		# [ValidatePattern()]
-		# [string]
-		# $Offset,
+    # TODO: implements offset
+    # [ValidatePattern()]
+    # [string]
+    # $Offset,
 
-		[ValidateRange(0, 100)]
-		[int]
-		$Limit,
+    [ValidateRange(0,100)]
+    [int]
+    $Limit,
 
-		[Switch]
-		$AidOnly
-	)
-	
-	process {
-		if ($PSBoundParameters.ContainsKey('Limit')) {
-			$ret = Search-CSIOCDeviceAid -Type $Type -Value $Value -Limit $Limit
-		} else {
-			$ret = Search-CSIOCDeviceAid -Type $Type -Value $Value
-		}
+    [switch]
+    $AidOnly
+  )
 
-		# AidOnlyフラグがOnなら、Aidだけ取得して返す
-		if ($AidOnly) {
-			Write-Verbose "AidOnly: Return only aids from '/indicators/queries/devices/v1'"
-			return $ret
-		}
+  process {
+    if ($PSBoundParameters.ContainsKey('Limit')) {
+      $ret = Search-CSIOCDeviceAid -Type $Type -Value $Value -Limit $Limit
+    } else {
+      $ret = Search-CSIOCDeviceAid -Type $Type -Value $Value
+    }
 
-		$aids = $ret
+    # AidOnlyフラグがOnなら、Aidだけ取得して返す
+    if ($AidOnly) {
+      Write-Verbose "AidOnly: Return only aids from '/indicators/queries/devices/v1'"
+      return $ret
+    }
 
-		foreach ($aid in $aids) {
-			Search-CSDeviceDetail -Aid $aid
-		}
-	}
+    $aids = $ret
+
+    foreach ($aid in $aids) {
+      Search-CSDeviceDetail -Aid $aid
+    }
+  }
 }
 
 function Search-CSIOCDeviceAid {
-	<#
+<#
 	.SYNOPSIS
 	Get detailed information of the device.
 	.PARAMETER <Type>
@@ -89,36 +89,36 @@ function Search-CSIOCDeviceAid {
 	.EXAMPLE
 	  Search-CSIOCDeviceAid -Type domain -Value www.example.com -Limit 10
 	#>
-	[CmdletBinding()]
-	param (
-		[Parameter(Mandatory=$true)]
-		[ValidateSet("domain", "md5", "sha256")]
-		[string]
-		$Type,
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("domain","md5","sha256")]
+    [string]
+    $Type,
 
-		[Parameter(Mandatory=$true)]
-		$Value,
+    [Parameter(Mandatory = $true)]
+    $Value,
 
-		# TODO: implements offset
-		# [ValidatePattern()]
-		# [string]
-		# $Offset,
+    # TODO: implements offset
+    # [ValidatePattern()]
+    # [string]
+    # $Offset,
 
-		[ValidateRange(0, 100)]
-		[int]
-		$Limit
-	)
-	
-	begin {
-		$base = "/indicators/queries/devices/v1"
-		$body = @{type = $Type; value = $Value}
-		if ($PSBoundParameters.ContainsKey('Limit')) {
-			$body.Add('limit', $Limit)
-		}
-	}
-	
-	process {
-		$method = "Get"
-		Invoke-CSRestMethod -Method $method -Endpoint $base -Body $body
-	}
+    [ValidateRange(0,100)]
+    [int]
+    $Limit
+  )
+
+  begin {
+    $base = "/indicators/queries/devices/v1"
+    $body = @{ type = $Type; value = $Value }
+    if ($PSBoundParameters.ContainsKey('Limit')) {
+      $body.Add('limit',$Limit)
+    }
+  }
+
+  process {
+    $method = "Get"
+    Invoke-CSRestMethod -Method $method -Endpoint $base -Body $body
+  }
 }

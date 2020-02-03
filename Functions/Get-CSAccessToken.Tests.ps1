@@ -1,107 +1,107 @@
 ﻿$here = Split-Path -Parent $MyInvocation.MyCommand.Path
-$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.','.'
 . "$here\$sut"
 
-function Remove-CacheAndConfig() {
-	if (Test-Path $cachePath) {
-		Remove-Item $cachePath
-	}
-	if (Test-Path $configPath) {
-		Remove-Item $configPath
-	}
+function Remove-CacheAndConfig () {
+  if (Test-Path $cachePath) {
+    Remove-Item $cachePath
+  }
+  if (Test-Path $configPath) {
+    Remove-Item $configPath
+  }
 }
 
 Describe "Get-CSAccessToken" {
 
-	$token = @{access_token = "Test_Token"; token_type = "bearer"; expires_in =1799}
-	$oauthUri = "https://api.crowdstrike.com/oauth2/token"
-	$ctype = "application/x-www-form-urlencoded"
-	$ClientId = "sample_id"
-	$SecretKey = "sample_secret"
-	$body = "client_id=$ClientId&client_secret=$SecretKey"
-	$configPath = "TestDrive:\.csconfig.json"
-	$config = '{ "client_id": "sample_id", "client_secret": "sample_secret"}'
-	$expire = (Get-Date).AddMinutes(1).ToString()
-	$cachePath = "TestDrive:\.cscache.json"
-	$cache = "{ 'access_token':  'Cached_Token', 'token_type':  'bearer', 'expires_in':  1799, 'expiration_time':  '$expire' }"
+  $token = @{ access_token = "Test_Token"; token_type = "bearer"; expires_in = 1799 }
+  $oauthUri = "https://api.crowdstrike.com/oauth2/token"
+  $ctype = "application/x-www-form-urlencoded"
+  $ClientId = "sample_id"
+  $SecretKey = "sample_secret"
+  $body = "client_id=$ClientId&client_secret=$SecretKey"
+  $configPath = "TestDrive:\.csconfig.json"
+  $config = '{ "client_id": "sample_id", "client_secret": "sample_secret"}'
+  $expire = (Get-Date).AddMinutes(1).ToString()
+  $cachePath = "TestDrive:\.cscache.json"
+  $cache = "{ 'access_token':  'Cached_Token', 'token_type':  'bearer', 'expires_in':  1799, 'expiration_time':  '$expire' }"
 
-	# ClientIdとSecKeyを渡したら、そのIDパスを使用してOauthAPIにアクセスし、AccessTokenを取得すること
-	Context "Use ClientId and ClientSecret Param" {
-		It "Valid Credential" {
-			Remove-CacheAndConfig
-			Mock Invoke-RestMethod  { return $token } -Verifiable
-			$result = Get-CSAccessToken -ClientId $ClientID -ClientSecret $SecretKey -Cache $cachePath
-			Assert-VerifiableMocks
-			$result.access_token | Should be $token.access_token
-		}
-	}
-	
+  # ClientIdとSecKeyを渡したら、そのIDパスを使用してOauthAPIにアクセスし、AccessTokenを取得すること
+  Context "Use ClientId and ClientSecret Param" {
+    It "Valid Credential" {
+      Remove-CacheAndConfig
+      Mock Invoke-RestMethod { return $token } -Verifiable
+      $result = Get-CSAccessToken -ClientId $ClientID -ClientSecret $SecretKey -Cache $cachePath
+      Assert-VerifiableMocks
+      $result.access_token | Should be $token.access_token
+    }
+  }
 
-	# 事前設定のコンフィグファイルを使用
-	Context "Use config file" {
-		It "Exist config and valid config." {
-			Remove-CacheAndConfig
-			# デフォルトのAPIkeyが格納されたファイルを用意
-			Set-Content $configPath -Value $config
 
-			Mock Invoke-RestMethod  { return $token } -Verifiable
-			$result = Get-CSAccessToken -Config $configPath -Cache $cachePath
-			Assert-VerifiableMocks
-			$result.access_token | Should be $token.access_token
-		}
-		
-		It "No config file" {
-			Remove-CacheAndConfig
-			{ Get-CSAccessToken -Config $configPath -Cache $cachePath } | Should throw "ConfigFileNotFoundError"
-		}
-	}
-	
+  # 事前設定のコンフィグファイルを使用
+  Context "Use config file" {
+    It "Exist config and valid config." {
+      Remove-CacheAndConfig
+      # デフォルトのAPIkeyが格納されたファイルを用意
+      Set-Content $configPath -Value $config
 
-	# ClientIdかSeckeyが間違っていてエラーになった場合はErrorを返す
-	Context "Miss ClientID or ClientSecret" {
-		$errRes = '{ "meta": { "query_time": 0.16625877, "powered_by": "csam", "trace_id": "61f599a5-c3e5-4d75-93f3-dadeaa1736e5" }, "errors": [ { "code": 403, "message": "Failed to issue access token - Not Authorized" } ] }'
-		It "Miss ClientID" {
-			Remove-CacheAndConfig
-			Mock Invoke-RestMethod  { throw $errRes }
-			$expectedErr = $errRes | ConvertFrom-Json
-			{ Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath } | Should throw $expectedErr
-		}
-		It "Miss ClientSecret" {
-			Remove-CacheAndConfig
-			Mock Invoke-RestMethod  { throw $errRes }
-			$expectedErr = $errRes | ConvertFrom-Json
-			{ Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath} | Should throw $expectedErr
-		}
-		It "Miss both ClientID and ClientSecret" {
-			Remove-CacheAndConfig
-			Mock Invoke-RestMethod  { throw $errRes }
-			$expectedErr = $errRes | ConvertFrom-Json
-			{ Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath} | Should throw $expectedErr
-		}
-	}
+      Mock Invoke-RestMethod { return $token } -Verifiable
+      $result = Get-CSAccessToken -Config $configPath -Cache $cachePath
+      Assert-VerifiableMocks
+      $result.access_token | Should be $token.access_token
+    }
 
-	Context "Cache Test" {
-		$cachedToken = $cache | ConvertFrom-Json
+    It "No config file" {
+      Remove-CacheAndConfig
+      { Get-CSAccessToken -Config $configPath -Cache $cachePath } | Should throw "ConfigFileNotFoundError"
+    }
+  }
 
-		It "Not expired then return from cache." {
-			Remove-CacheAndConfig
-			Set-Content $cachePath -Value $cache
 
-			# このMockが呼ばれているということはCacheから値を返していないということなのでテストは失敗
-			Mock Invoke-RestMethod  { return $token }
+  # ClientIdかSeckeyが間違っていてエラーになった場合はErrorを返す
+  Context "Miss ClientID or ClientSecret" {
+    $errRes = '{ "meta": { "query_time": 0.16625877, "powered_by": "csam", "trace_id": "61f599a5-c3e5-4d75-93f3-dadeaa1736e5" }, "errors": [ { "code": 403, "message": "Failed to issue access token - Not Authorized" } ] }'
+    It "Miss ClientID" {
+      Remove-CacheAndConfig
+      Mock Invoke-RestMethod { throw $errRes }
+      $expectedErr = $errRes | ConvertFrom-Json
+      { Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath } | Should throw $expectedErr
+    }
+    It "Miss ClientSecret" {
+      Remove-CacheAndConfig
+      Mock Invoke-RestMethod { throw $errRes }
+      $expectedErr = $errRes | ConvertFrom-Json
+      { Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath } | Should throw $expectedErr
+    }
+    It "Miss both ClientID and ClientSecret" {
+      Remove-CacheAndConfig
+      Mock Invoke-RestMethod { throw $errRes }
+      $expectedErr = $errRes | ConvertFrom-Json
+      { Get-CSAccessToken -ClientId "test" -ClientSecret "test" -Cache $cachePath } | Should throw $expectedErr
+    }
+  }
 
-			$result = Get-CSAccessToken -ClientId $ClientID -ClientSecret $SecretKey -Cache $cachePath
-			$result.access_token | Should be $cachedToken.access_token
-		}
+  Context "Cache Test" {
+    $cachedToken = $cache | ConvertFrom-Json
 
-		It "Expired then return from cs oauth api." {
-			Remove-CacheAndConfig
-			Set-Content $cachePath -Value $cache
+    It "Not expired then return from cache." {
+      Remove-CacheAndConfig
+      Set-Content $cachePath -Value $cache
 
-			Mock Invoke-RestMethod  { return $token }
+      # このMockが呼ばれているということはCacheから値を返していないということなのでテストは失敗
+      Mock Invoke-RestMethod { return $token }
 
-			$result = Get-CSAccessToken -ClientId $ClientID -ClientSecret $SecretKey -Cache $cachePath
-			$result.access_token | Should be $cachedToken.access_token
-		}
-	}
+      $result = Get-CSAccessToken -ClientId $ClientID -ClientSecret $SecretKey -Cache $cachePath
+      $result.access_token | Should be $cachedToken.access_token
+    }
+
+    It "Expired then return from cs oauth api." {
+      Remove-CacheAndConfig
+      Set-Content $cachePath -Value $cache
+
+      Mock Invoke-RestMethod { return $token }
+
+      $result = Get-CSAccessToken -ClientId $ClientID -ClientSecret $SecretKey -Cache $cachePath
+      $result.access_token | Should be $cachedToken.access_token
+    }
+  }
 }
